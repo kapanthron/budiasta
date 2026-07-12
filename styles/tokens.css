@@ -1,0 +1,48 @@
+/* Manuskrip token layer. Every color in the app lives here; component CSS uses vars only. */
+:root {
+  --surface: #f4efe3;        /* Lontar: warm manuscript paper */
+  --surface-2: #ece5d3;
+  --surface-3: #e2d9c2;
+  --ink: #26241e;
+  --ink-soft: #5c574a;
+  --accent: #31456e;         /* indigo of a lontar scribe's ink */
+  --accent-ink: #f4efe3;
+  --danger: #8c3b2e;
+  --warn: #8a6d1f;
+  --ok: #3d6b4f;
+  --line: #d4c9ac;
+  --sel: #c9d4e8;
+  --page: #faf7ee;
+  --focus-ring: #31456e;
+
+  --radius: 6px;
+  --font-ui: system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-page: Georgia, "Times New Roman", serif;
+  --page-size: 18px;
+  --page-leading: 1.7;
+  --page-measure: 66ch;
+}
+
+[data-theme="senja"] {
+  --surface: #1c2026; --surface-2: #232830; --surface-3: #2b313b;
+  --ink: #e8e4da; --ink-soft: #9aa0a8;
+  --accent: #d9a441; --accent-ink: #1c2026;
+  --danger: #d4796a; --warn: #cfb35e; --ok: #7fae8f;
+  --line: #363d47; --sel: #3d4656; --page: #22262d; --focus-ring: #d9a441;
+}
+
+[data-theme="pantai"] {
+  --surface: #eef1f2; --surface-2: #e2e8e9; --surface-3: #d4dddf;
+  --ink: #1f2a2c; --ink-soft: #5b6a6d;
+  --accent: #2b6f6a; --accent-ink: #eef1f2;
+  --danger: #9c4438; --warn: #8a6d1f; --ok: #2b6f4a;
+  --line: #c5d1d3; --sel: #c3dbd9; --page: #f7fafa; --focus-ring: #2b6f6a;
+}
+
+[data-theme="malam-hujan"] {
+  --surface: #12151c; --surface-2: #181c25; --surface-3: #202634;
+  --ink: #d7dde6; --ink-soft: #8b94a3;
+  --accent: #7fb4c9; --accent-ink: #12151c;
+  --danger: #cd7f74; --warn: #c4ad68; --ok: #82ab90;
+  --line: #262d3b; --sel: #2c3a4d; --page: #171b24; --focus-ring: #7fb4c9;
+}

@@ -1,0 +1,4 @@
+# KBBI is a copyrighted compilation: generated locally by the writer, never committed.
+data/kbbi.json
+data/kbbi-headwords.json
+node_modules/
