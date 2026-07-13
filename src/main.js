@@ -9,6 +9,7 @@ import { initExportDoc } from './export-doc.js';
 import { initAbout } from './about.js';
 import { assistantDefaults } from './assistant.js';
 import { initAuth } from './auth.js';
+import { initSync } from './sync.js';
 
 const app = {
   state: null,
@@ -54,6 +55,7 @@ async function boot() {
     ? app.state.settings.lastDocId : Object.keys(app.state.documents)[0] || null;
   assistantDefaults(app.state);
   await initAuth(app);
+  await initSync(app);
 
   await initTheme(app);
   initEditor(app);
@@ -73,6 +75,7 @@ async function boot() {
   const saveNow = async () => {
     await flush(app.state);
     app.logActivity?.('simpan', `${app.state.project.title}`);
+    app.syncNow?.();
     const st = document.getElementById('st-saved');
     st.textContent = 'tersimpan'; st.classList.remove('dirty');
   };
