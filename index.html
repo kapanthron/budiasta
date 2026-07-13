@@ -3,28 +3,34 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'">
-<title>Manuskrip — studio menulis</title>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self' blob:; connect-src 'self' https:">
+<title>Budiasta — Asta Tumuju ing Budi</title>
 <link rel="stylesheet" href="styles/tokens.css">
 <link rel="stylesheet" href="styles/app.css">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ctext y='13' font-size='13'%3E%E2%9C%8D%3C/text%3E%3C/svg%3E">
 </head>
 <body>
 <header id="toolbar">
-  <span id="brand">Manuskrip</span>
+  <button id="btn-toggle-binder" class="mobile-only" title="Binder" aria-label="Buka binder">☰</button>
+  <span id="brand" title="Asta Tumuju ing Budi">Budiasta</span>
   <input id="project-title" aria-label="Judul proyek" spellcheck="false">
-  <select id="mode-select" aria-label="Mode proyek">
+  <select id="mode-select" aria-label="Mode proyek" class="desktop-only">
     <option value="prose">Prosa</option>
     <option value="poetry">Puisi</option>
     <option value="column">Kolom</option>
     <option value="screenplay">Skenario</option>
   </select>
   <span class="spacer"></span>
-  <select id="theme-select" aria-label="Tema"></select>
-  <button id="btn-typography" title="Tipografi">Aa</button>
-  <button id="btn-export" title="Ekspor proyek sebagai JSON">Ekspor</button>
-  <button id="btn-import" title="Impor proyek dari JSON">Impor</button>
-  <button id="btn-palette" title="Palet perintah (Ctrl+K)">⌘K</button>
+  <button id="btn-save" title="Simpan sekarang (Ctrl+S)">Simpan</button>
+  <button id="btn-dark" title="Ganti terang/gelap">◐</button>
+  <select id="theme-select" aria-label="Tema" class="desktop-only"></select>
+  <button id="btn-typography" title="Tipografi & font">Aa</button>
+  <button id="btn-download" title="Unduh / bagikan">Unduh</button>
+  <button id="btn-about" title="Tentang Budiasta">?</button>
+  <button id="btn-export" title="Cadangkan proyek sebagai JSON" class="desktop-only">Ekspor</button>
+  <button id="btn-import" title="Impor proyek dari JSON" class="desktop-only">Impor</button>
+  <button id="btn-palette" title="Palet perintah (Ctrl+K)" class="desktop-only">⌘K</button>
+  <button id="btn-toggle-inspector" class="mobile-only" title="Panel" aria-label="Buka panel">Panel</button>
 </header>
 
 <main id="layout">
@@ -34,6 +40,7 @@
       <span class="spacer"></span>
       <button id="btn-new-doc" title="Dokumen baru">+ Dok</button>
       <button id="btn-new-folder" title="Map baru">+ Map</button>
+      <button class="mobile-only close-drawer" data-close="binder" aria-label="Tutup">×</button>
     </div>
     <ul id="tree" role="tree"></ul>
   </nav>
@@ -44,9 +51,9 @@
     </div>
     <footer id="status">
       <span id="st-words">0 kata</span>
-      <span id="st-session">sesi +0</span>
+      <span id="st-session" class="desktop-only">sesi +0</span>
       <span id="st-ceiling" hidden></span>
-      <span id="st-read">0 mnt</span>
+      <span id="st-read" class="desktop-only">0 mnt</span>
       <span class="spacer"></span>
       <span id="st-saved">tersimpan</span>
     </footer>
@@ -58,10 +65,12 @@
       <button data-tab="bahasa" role="tab">Bahasa</button>
       <button data-tab="snapshots" role="tab">Snapshot</button>
       <button data-tab="cuts" role="tab">Cuts</button>
+      <button class="mobile-only close-drawer" data-close="inspector" aria-label="Tutup">×</button>
     </div>
     <div id="insp-body"></div>
   </aside>
 </main>
+<div id="drawer-scrim" hidden></div>
 
 <dialog id="typo-dialog">
   <h3>Tipografi halaman</h3>
@@ -76,7 +85,39 @@
   <label>Ukuran <input id="typo-size" type="range" min="14" max="26" step="1"> <span id="typo-size-v"></span></label>
   <label>Jarak baris <input id="typo-leading" type="range" min="1.3" max="2.2" step="0.05"> <span id="typo-leading-v"></span></label>
   <label>Lebar ukur (karakter) <input id="typo-measure" type="range" min="45" max="90" step="1"> <span id="typo-measure-v"></span></label>
+  <h3>Font sendiri</h3>
+  <p class="insp-note">Pasang berkas .ttf, .otf, atau .woff2 milik Anda. Font disimpan di peramban ini saja.</p>
+  <div class="insp-row">
+    <button id="btn-add-font">Pasang font…</button>
+  </div>
+  <div id="custom-fonts"></div>
   <div class="dialog-actions"><button id="typo-close">Tutup</button></div>
+</dialog>
+
+<dialog id="export-dialog">
+  <h3>Unduh / bagikan</h3>
+  <label>Cakupan
+    <select id="exp-scope">
+      <option value="doc">Dokumen ini</option>
+      <option value="project">Seluruh manuskrip</option>
+    </select>
+  </label>
+  <div class="export-grid">
+    <button id="exp-txt">TXT</button>
+    <button id="exp-doc">DOC (Word)</button>
+    <button id="exp-pdf">PDF (cetak)</button>
+    <button id="exp-share">Bagikan…</button>
+  </div>
+  <p class="insp-note">PDF dibuat lewat dialog cetak peramban: pilih “Simpan sebagai PDF”.</p>
+  <div class="dialog-actions"><button id="exp-close">Tutup</button></div>
+</dialog>
+
+<dialog id="about-dialog">
+  <div id="about-content"></div>
+  <div class="dialog-actions">
+    <button id="about-edit">Ubah (admin)</button>
+    <button id="about-close">Tutup</button>
+  </div>
 </dialog>
 
 <dialog id="palette-dialog">
@@ -84,8 +125,11 @@
   <ul id="palette-list"></ul>
 </dialog>
 
+<div id="print-area" aria-hidden="true"></div>
+
 <input type="file" id="file-import" accept="application/json" hidden>
 <input type="file" id="file-kbbi" accept="application/json" hidden>
+<input type="file" id="file-font" accept=".ttf,.otf,.woff,.woff2" hidden>
 
 <script type="module" src="src/main.js"></script>
 </body>

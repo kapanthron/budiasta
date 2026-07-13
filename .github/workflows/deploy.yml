@@ -27,7 +27,7 @@ jobs:
       # artifact we are about to publish is not the real app.
       - name: Verify site content before upload
         run: |
-          grep -q "Manuskrip" index.html
+          grep -q "Budiasta" index.html
           test -f src/main.js
           test -f data/puebi_eyd_rules.json
           python3 -c "import json; json.load(open('data/puebi_eyd_rules.json'))"

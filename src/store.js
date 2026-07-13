@@ -63,6 +63,10 @@ async function idbSet(key, val) {
   });
 }
 
+// generic key-value slots in the same store (custom fonts, about page, admin key)
+export const kvGet = (key) => idbGet('kv:' + key).catch(() => undefined);
+export const kvSet = (key, val) => idbSet('kv:' + key, val).catch(() => {});
+
 export async function loadProject() {
   try {
     const data = await idbGet(DB_KEY);
@@ -110,7 +114,7 @@ export function exportJson(state) {
   const blob = new Blob([JSON.stringify(state, null, 1)], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = `${(state.project.title || 'manuskrip').replace(/\s+/g, '_')}.manuskrip.json`;
+  a.download = `${(state.project.title || 'budiasta').replace(/\s+/g, '_')}.budiasta.json`;
   a.click();
   URL.revokeObjectURL(a.href);
 }
