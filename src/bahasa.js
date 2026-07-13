@@ -91,7 +91,7 @@ function renderFindings(app, out, doc) {
       el('span', { className: 'stmt' }, f.statement || f.suggest || ''),
     );
     const actions = el('div', { className: 'card-actions' });
-    if (f.replacement != null && f.replacement !== f.text) {
+    if (f.replacement != null && f.replacement !== (f.raw ?? f.text)) {
       const apply = el('button', { className: 'apply', textContent: `Terapkan: ${f.replacement}` });
       apply.addEventListener('click', () => {
         app.applyEdit(f.start, f.end, f.replacement);
