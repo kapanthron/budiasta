@@ -75,12 +75,41 @@ export function renderAssistantConfig(app, container) {
       app.save();
     });
 
+    // Test the connection and load the model list, so the admin picks a valid id
+    const testBtn = el('button', { textContent: 'Uji & muat daftar model' });
+    const testOut = el('div', { className: 'insp-note' });
+    const modelPick = el('select', { hidden: true });
+    modelPick.addEventListener('change', () => {
+      model.value = modelPick.value; cfg.model = modelPick.value; app.save();
+    });
+    testBtn.addEventListener('click', async () => {
+      testOut.textContent = 'Menghubungi penyedia…';
+      modelPick.hidden = true; modelPick.textContent = '';
+      const k = key.value.trim() || await resolveKey();
+      if (!k || !baseUrl.value.trim()) { testOut.textContent = 'Isi base URL dan kunci API dahulu.'; return; }
+      try {
+        const ids = await listModels({ baseUrl: baseUrl.value.trim() }, k);
+        if (!ids.length) { testOut.textContent = 'Tersambung, tetapi daftar model kosong. Isi nama model manual.'; return; }
+        for (const id of ids) modelPick.append(el('option', { value: id, textContent: id, selected: id === cfg.model }));
+        modelPick.hidden = false;
+        // if the current model isn't in the list, adopt the first as a safe default
+        if (!ids.includes(cfg.model)) { model.value = ids[0]; cfg.model = ids[0]; modelPick.value = ids[0]; app.save(); }
+        testOut.textContent = `Tersambung. ${ids.length} model tersedia — pilih di bawah.`;
+      } catch (e) {
+        testOut.textContent = 'Gagal: ' + e.message;
+      }
+    });
+
     detail.append(
       el('label', {}, 'Penyedia', prov),
       el('label', {}, 'Base URL', baseUrl),
-      el('label', {}, 'Model', model),
       el('label', {}, 'Kunci API', key),
       el('label', { style: 'flex-direction:row;align-items:center' }, storeKey, ' Simpan kunci di peramban ini (agar penulis tak perlu mengetik ulang)'),
+      testBtn, testOut,
+      el('label', {}, 'Model', model),
+      modelPick,
+      el('p', { className: 'insp-note' },
+        'Jika chat memberi error 404, biasanya nama model salah. Klik “Uji & muat daftar model”, lalu pilih salah satu (mis. gemini-2.0-flash atau gemini-2.5-flash).'),
       el('p', { className: 'insp-note' }, 'Setelah aktif, penulis melihat kotak chat siap pakai di tab Bahasa.'),
     );
   }
@@ -168,7 +197,36 @@ async function callModel(cfg, key, messages) {
     headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
     body: JSON.stringify({ model: cfg.model, temperature: 0.3, messages }),
   });
-  if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+  if (!res.ok) throw new Error(await errText(res, cfg.model));
   const data = await res.json();
   return data.choices?.[0]?.message?.content || '';
+}
+
+// GET the provider's model list (OpenAI-compatible /models). Ids may carry a
+// "models/" prefix on Gemini — strip it so chat/completions accepts them.
+async function listModels(cfg, key) {
+  const res = await fetch(cfg.baseUrl.replace(/\/$/, '') + '/models', {
+    headers: { 'Authorization': 'Bearer ' + key },
+  });
+  if (!res.ok) throw new Error(await errText(res));
+  const data = await res.json();
+  const raw = data.data || data.models || [];
+  return raw.map(m => (m.id || m.name || '').replace(/^models\//, '')).filter(Boolean);
+}
+
+// Turn a failed response into a readable message: pull the provider's own
+// error text (Gemini returns JSON like {error:{message,status}}) instead of "404 .".
+async function errText(res, model) {
+  let body = '';
+  try { body = await res.text(); } catch { /* ignore */ }
+  let detail = body;
+  try { detail = JSON.parse(body)?.error?.message || body; } catch { /* not json */ }
+  detail = (detail || '').slice(0, 240);
+  if (res.status === 404) {
+    return `404 — model tidak ditemukan${model ? ` ("${model}")` : ''}. ` +
+      `Buka panel admin → “Uji & muat daftar model” lalu pilih model yang valid. ${detail}`.trim();
+  }
+  if (res.status === 401 || res.status === 403) return `${res.status} — kunci API ditolak. ${detail}`.trim();
+  if (res.status === 429) return `429 — kuota penyedia habis. ${detail}`.trim();
+  return `${res.status} ${res.statusText || ''} ${detail}`.trim();
 }
