@@ -4,6 +4,9 @@ import { kvGet, kvSet } from './store.js';
 let cache = null;
 const CAP = 1000;
 
+let remoteLogger = null;
+export function setRemoteLogger(fn) { remoteLogger = fn; }
+
 export async function logActivity(app, type, detail = '') {
   cache ??= (await kvGet('activity')) || [];
   cache.push({
@@ -15,6 +18,7 @@ export async function logActivity(app, type, detail = '') {
   });
   if (cache.length > CAP) cache = cache.slice(-CAP);
   await kvSet('activity', cache);
+  remoteLogger?.(cache[cache.length - 1]);
 }
 
 export async function getActivity() {

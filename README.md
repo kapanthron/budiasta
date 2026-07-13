@@ -39,9 +39,29 @@ Dibuat dan dikembangkan oleh **Panthron Mahagama**.
    (dan `http://localhost:8000` untuk pengembangan).
 4. Buka aplikasi → tombol **Masuk** → tempel Client ID.
 
-Catatan jujur: Budiasta tidak punya server, jadi peran admin ditegakkan di antarmuka dan
-log aktivitas tersimpan di peramban masing-masing pemakai (dapat diunduh sebagai JSON).
-Untuk penegakan sungguhan lintas perangkat dibutuhkan backend.
+## Server gratis (simpan karya + pelacakan admin)
+
+Budiasta menyertakan backend gratis berbasis **Google Apps Script**: karya setiap pemakai
+tersimpan ke Google Drive milik pemilik situs, dan setiap aktivitas tercatat di spreadsheet
+**"Budiasta Data"** — admin bisa melacak dari panel dalam aplikasi atau langsung membuka
+spreadsheet-nya. Kredensial admin diperiksa di server, bukan di halaman.
+
+### Penyiapan server (sekali, gratis, tanpa kartu kredit)
+1. Buka [script.google.com](https://script.google.com) → **New project**, tempel seluruh isi
+   [`server/budiasta-server.gs`](server/budiasta-server.gs).
+2. Di baris atas skrip, isi `ADMIN_ID` dan `ADMIN_PASS` dengan kredensial asli Anda.
+   (Sandi tinggal di proyek Apps Script pribadi Anda — jangan pernah menaruhnya di repo publik.)
+3. **Deploy → New deployment → Web app** — *Execute as: Me*, *Who has access: Anyone* → salin URL `/exec`.
+4. Tulis URL itu ke [`data/config.json`](data/config.json) (`"serverUrl"`) lewat tombol ✏️ di GitHub,
+   agar semua pemakai tersambung — atau tempel di dialog **Masuk** untuk satu peramban saja.
+
+Sesudah tersambung: naskah ikut tersimpan ke server (maksimal sekali per menit, plus saat
+tombol Simpan ditekan), tombol **Muat dari server** menarik simpanan terakhir, dan bagian
+**Admin server** (ID + sandi) menampilkan semua pengguna, karya, dan aktivitas — bisa diunduh
+sebagai JSON.
+
+Catatan jujur: identitas pengirim (email/Google ID) disertakan oleh aplikasi dan belum
+diverifikasi ulang di server, jadi log ini jejak kerja yang baik, bukan bukti forensik.
 
 ## Menjalankan lokal
 ```bash

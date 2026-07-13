@@ -74,6 +74,7 @@ export async function initAuth(app) {
         input, save,
         el('p', { className: 'insp-note' }, 'Client ID bukan rahasia; ia hanya mengikat tombol masuk ke situs ini.'),
       );
+      appendServer(loginBody);
       return;
     }
     const holder = el('div', { id: 'gsi-button' });
@@ -83,6 +84,7 @@ export async function initAuth(app) {
       el('p', { className: 'insp-note' },
         'Tanpa masuk pun Budiasta tetap berfungsi penuh sebagai tamu. Akun pertama yang masuk di peramban ini menjadi admin.'),
     );
+    appendServer(loginBody);
     try {
       await loadGsi();
       google.accounts.id.initialize({ client_id: clientId, callback: onCredential });
@@ -92,6 +94,9 @@ export async function initAuth(app) {
         'Skrip Google gagal dimuat. Periksa koneksi, atau Client ID dan origin yang terdaftar.'));
     }
   }
+
+  // server sync + server-admin section lives in both dialogs
+  function appendServer(container) { app.renderServerSection?.(container); }
 
   let gsiPromise = null;
   function loadGsi() {
@@ -156,6 +161,8 @@ export async function initAuth(app) {
           'Catatan jujur: tanpa server, peran admin dan log ini hidup di peramban masing-masing pemakai — ini jejak kerja, bukan pagar keamanan.'),
       );
     }
+
+    appendServer(acctBody);
 
     const logout = el('button', { textContent: 'Keluar' });
     logout.addEventListener('click', async () => {
