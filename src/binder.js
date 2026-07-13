@@ -61,7 +61,10 @@ export function initBinder(app) {
     titleEl.replaceWith(input);
     input.focus(); input.select();
     const done = (commit) => {
-      if (commit && input.value.trim()) node.title = input.value.trim();
+      if (commit && input.value.trim() && input.value.trim() !== node.title) {
+        app.logActivity?.('ganti-nama', `${node.title} -> ${input.value.trim()}`);
+        node.title = input.value.trim();
+      }
       app.save(); render();
     };
     input.addEventListener('keydown', (e) => {
@@ -91,6 +94,7 @@ export function initBinder(app) {
     const hasText = words.some(w => w > 0);
     if (hasText && !confirm(`Hapus “${hit.node.title}”? Isinya masih ada di berkas ekspor terakhir, tetapi akan hilang dari proyek.`)) return;
     hit.siblings.splice(hit.siblings.indexOf(hit.node), 1);
+    app.logActivity?.('hapus', hit.node.title);
     if (hit.node.id === app.currentDocId) {
       let next = null;
       (function first(nodes) { for (const n of nodes) { if (!next && n.type === 'document') next = n.id; first(n.children || []); } })(app.state.tree);
@@ -108,6 +112,7 @@ export function initBinder(app) {
       app.state.documents[node.id] = blankDoc();
       app.openDoc(node.id);
     }
+    app.logActivity?.('buat', `${type}: ${node.title}`);
     app.save(); render();
     return node;
   }

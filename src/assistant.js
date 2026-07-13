@@ -100,6 +100,7 @@ async function checkWithAi(app, cfg, out, el) {
   if (!text.trim()) { out.append(el('p', { className: 'insp-note' }, 'Sorot teks atau letakkan kursor pada sebuah paragraf.')); return; }
   if (!cfg.key || !cfg.baseUrl || !cfg.model) { out.append(el('p', { className: 'insp-note' }, 'Isi base URL, model, dan kunci API dahulu.')); return; }
   out.append(el('p', { className: 'insp-note' }, `Mengirim ±${Math.ceil(text.length / 4)} token…`));
+  app.logActivity?.('ai-periksa', cfg.provider);
   try {
     const res = await fetch(cfg.baseUrl.replace(/\/$/, '') + '/chat/completions', {
       method: 'POST',
