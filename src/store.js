@@ -27,7 +27,7 @@ export function blankProject() {
 
 export function blankDoc() {
   return { body: '', synopsis: '', notes: '', pov: '', status: 'draft',
-           targetWords: 0, ceilingWords: 0 };
+           targetWords: 0, ceilingWords: 0, align: 'left' };
 }
 
 function migrate(data) {
