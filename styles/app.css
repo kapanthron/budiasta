@@ -106,10 +106,61 @@ dialog label { display: flex; align-items: center; gap: 8px; margin: 8px 0; }
 #palette-list li .hint { color: var(--ink-soft); font-size: 12px; margin-left: auto; }
 #palette-list li.sel, #palette-list li:hover { background: var(--sel); }
 
+/* Export dialog */
+.export-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 10px 0; }
+.export-grid button { padding: 10px; }
+#custom-fonts { display: flex; flex-direction: column; gap: 4px; margin-top: 8px; }
+#custom-fonts .font-row { display: flex; align-items: center; gap: 8px; }
+
+/* About */
+#about-dialog { max-width: 520px; }
+#about-content h2 { margin-top: 0; }
+#about-content textarea { width: 100%; min-height: 220px; }
+#about-content .tagline { color: var(--ink-soft); font-style: italic; }
+
+/* Print: only the prepared print area, as a clean page */
+#print-area { display: none; }
+@media print {
+  body > *:not(#print-area) { display: none !important; }
+  #print-area { display: block; font-family: var(--font-page); font-size: 12pt; line-height: 1.6; color: #000; }
+  #print-area h1 { font-size: 16pt; }
+  #print-area p { margin: 0 0 0.8em; }
+  #print-area .doc-break { page-break-before: always; }
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .node-row, button, #insp-tabs button { transition: background 0.12s ease; }
+  #binder, #inspector { transition: transform 0.18s ease; }
 }
-@media (max-width: 900px) {
-  #layout { grid-template-columns: 180px 1fr; }
-  #inspector { display: none; }
+
+/* Mobile: binder & inspector become slide-over drawers */
+.mobile-only { display: none; }
+@media (max-width: 760px) {
+  .mobile-only { display: inline-block; }
+  .desktop-only { display: none !important; }
+  #toolbar { flex-wrap: wrap; gap: 6px; padding: 6px 8px; }
+  #project-title { min-width: 8ch; flex: 1; }
+  #layout { display: block; position: relative; height: 100%; }
+  #editor-col { height: 100%; }
+  #page-wrap { padding: 12px 8px; }
+  #page { padding: 20px 16px; min-height: 70vh; }
+  #binder, #inspector {
+    position: fixed; top: 0; bottom: 0; z-index: 30; width: min(85vw, 340px);
+    background: var(--surface); transform: translateX(-105%);
+    border-right: 1px solid var(--line); box-shadow: 0 0 24px rgba(0,0,0,0.25);
+    display: flex; flex-direction: column;
+  }
+  #binder { left: 0; }
+  #inspector { right: 0; left: auto; transform: translateX(105%); border-left: 1px solid var(--line); }
+  #binder.open, #inspector.open { transform: translateX(0); }
+  #binder { overflow-y: auto; }
+  #drawer-scrim {
+    position: fixed; inset: 0; z-index: 20; background: rgba(0,0,0,0.35);
+  }
+  #insp-tabs { flex-wrap: wrap; }
+  /* touch targets */
+  button { padding: 6px 12px; }
+  .node-row { padding: 8px 6px; }
+  .node-row .actions { visibility: visible; }
+  #status { flex-wrap: wrap; gap: 10px; }
 }

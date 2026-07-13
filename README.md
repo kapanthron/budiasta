@@ -1,32 +1,34 @@
-# budiasta · Manuskrip
+# Budiasta
 
-*asta tumuju ing budi*
+**Asta Tumuju ing Budi** — tangan yang dipimpin oleh akal pikiran menuju kebijaksanaan.
 
 Studio menulis lokal-pertama di peramban — untuk novelis, penyair, kolumnis, dan penulis skenario.
-Vanilla JS, tanpa build step, tanpa server, tanpa telemetri. Naskah Anda tinggal di mesin Anda
-(IndexedDB), dan dapat diekspor sebagai JSON kapan saja.
+Vanilla JS, tanpa build step, tanpa server, tanpa telemetri. Naskah Anda tinggal di perangkat Anda
+(IndexedDB) dan dapat diunduh kapan saja.
 
 **Live:** https://kapanthron.github.io/budiasta/
 
-## Yang sudah ada (v1)
+Dibuat dan dikembangkan oleh **Panthron Mahagama**.
+
+## Fitur
 - **Binder** — pohon dokumen: tambah, ganti nama, urutkan, hapus.
-- **Editor** — halaman polos dengan autosave setiap jeda, hitung kata, pagu kata untuk kolumnis,
-  waktu baca, dan penghitung sesi.
-- **Panel Bahasa** — mesin aturan PUEBI/EYD yang berjalan sepenuhnya luring dari
-  `data/puebi_eyd_rules.json`. Setiap temuan menyebut id aturannya (mis. `W01`), dengan tombol
-  Terapkan/Abaikan. Mode puisi membisukan aturan kapital dan tanda baca. Tidak ada nilai,
-  tidak ada koreksi otomatis.
-- **Kamus** — muat `kbbi.json` hasil ekstraksi Anda sendiri (lihat di bawah). Tidak pernah
-  dibundel: kamus adalah kompilasi berhak cipta dan tetap menjadi pustaka pribadi.
-- **Snapshot** — simpan versi, pulihkan dengan aman (keadaan sekarang di-snapshot dulu).
-- **Laci Cuts** — Ctrl+Shift+X memindahkan seleksi ke laci, bukan ke tempat sampah.
-- **Tema & tipografi** — 4 tema berbasis token CSS, kendali huruf/ukuran/jarak baris/lebar ukur.
-- **Palet perintah** — Ctrl/Cmd+K.
-- **Ekspor/Impor** — seluruh proyek sebagai satu berkas JSON.
+- **Editor** — autosave otomatis setiap jeda + tombol Simpan / Ctrl+S, hitung kata, pagu kata,
+  waktu baca. Tata letak responsif: di ponsel, binder dan panel menjadi laci geser.
+- **Panel Bahasa** — mesin aturan PUEBI/EYD sepenuhnya luring dari `data/puebi_eyd_rules.json`.
+  Setiap temuan menyebut id aturannya, dengan Terapkan/Abaikan. Mode puisi membisukan aturan
+  kapital dan tanda baca.
+- **Asisten AI (opsional)** — mati secara bawaan. Masukkan kunci API Anda sendiri
+  (Groq / Google AI Studio / OpenRouter / endpoint OpenAI-compatible apa pun). Hanya seleksi
+  atau paragraf aktif yang dikirim — tidak pernah seluruh naskah.
+- **Kamus** — muat `kbbi.json` hasil ekstraksi Anda sendiri (`tools/kbbi_pdf_to_json.py`).
+  Tidak pernah dibundel; kamus adalah kompilasi berhak cipta.
+- **Unduh & bagikan** — TXT, DOC (Word), PDF (lewat dialog cetak), atau menu bagikan ponsel.
+- **Font sendiri** — pasang berkas .ttf/.otf/.woff2; tersimpan di peramban.
+- **Tema** — 4 tema berbasis token + sakelar terang/gelap satu ketukan.
+- **Snapshot & Laci Cuts** — tidak ada kata yang hilang; Ctrl+Shift+X memarkir seleksi.
+- **Tentang** — halaman Tentang dapat disunting pemilik lewat kunci admin lokal.
 
 ## Menjalankan lokal
-Sajikan folder ini dengan server statis apa pun (modul ES butuh http, bukan file://):
-
 ```bash
 python3 -m http.server 8000
 # buka http://localhost:8000
@@ -37,11 +39,10 @@ python3 -m http.server 8000
 pip install pymupdf
 python3 tools/kbbi_pdf_to_json.py KBBI_Lengkap.pdf --out kbbi.json
 ```
-Lalu buka tab **Bahasa → Muat kbbi.json**. Berkas tidak pernah meninggalkan mesin Anda dan
-sudah masuk `.gitignore`.
+Lalu buka tab **Bahasa → Muat kbbi.json**. Berkas tidak pernah meninggalkan mesin Anda.
 
 ## Deploy
-Setiap push ke `main` (atau cabang pengembangan ini) memicu `.github/workflows/deploy.yml`,
-yang memverifikasi isi situs (bukan placeholder "hello world") lalu menerbitkannya ke GitHub Pages.
+Push ke `main` memicu `.github/workflows/deploy.yml`, yang memverifikasi isi situs lalu
+menerbitkannya ke GitHub Pages.
 
-Rencana lengkap dan keputusan desain: [`docs/PLAN.md`](docs/PLAN.md).
+Rencana dan keputusan desain: [`docs/PLAN.md`](docs/PLAN.md).
