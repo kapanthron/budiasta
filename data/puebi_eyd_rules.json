@@ -1,0 +1,663 @@
+{
+  "meta": {
+    "id": "puebi-eyd-v",
+    "title": "Aturan Ejaan Bahasa Indonesia untuk mesin pemeriksa Manuskrip",
+    "version": "1.0.0",
+    "basis": "Permendikbud 50/2015 (PUEBI) dan Kepmendikbudristek 0424/2022 (EYD Edisi V). Aturan ditulis ulang dan distrukturkan untuk dipakai mesin, bukan salinan teks buku mana pun.",
+    "language": "id",
+    "severityScale": ["info", "warning", "error"],
+    "checkTypes": {
+      "regex": "dijalankan langsung oleh mesin, hasilnya pasti",
+      "lexicon": "dicocokkan dengan daftar kata, hasilnya pasti",
+      "heuristic": "kandidat, perlu konfirmasi manusia atau model",
+      "llm": "hanya bisa dinilai dengan konteks kalimat"
+    }
+  },
+
+  "categories": {
+    "K": "Huruf kapital",
+    "M": "Huruf miring dan tebal",
+    "W": "Penulisan kata",
+    "A": "Angka dan bilangan",
+    "S": "Singkatan dan akronim",
+    "P": "Tanda baca",
+    "U": "Unsur serapan",
+    "I": "Pembentukan istilah"
+  },
+
+  "rules": [
+    {
+      "id": "K01",
+      "category": "K",
+      "title": "Huruf kapital pada awal kalimat",
+      "statement": "Huruf pertama pada awal kalimat ditulis kapital, termasuk setelah tanda titik, tanda tanya, dan tanda seru.",
+      "examples": [{ "salah": "hujan turun. kami tetap berangkat.", "benar": "Hujan turun. Kami tetap berangkat." }],
+      "check": { "type": "regex", "pattern": "(^|[.!?]\\s+)([a-z])", "suggest": "kapitalkan huruf awal kalimat" },
+      "severity": "error"
+    },
+    {
+      "id": "K02",
+      "category": "K",
+      "title": "Nama orang, bukan nama jenis",
+      "statement": "Huruf kapital dipakai pada nama orang. Nama orang yang sudah menjadi nama jenis atau satuan ditulis kecil.",
+      "examples": [
+        { "salah": "mesin Diesel itu berisik", "benar": "mesin diesel itu berisik" },
+        { "salah": "10 Volt", "benar": "10 volt" }
+      ],
+      "check": { "type": "lexicon", "list": ["diesel", "volt", "ampere", "newton", "ohm", "rontgen", "pascal", "hertz"], "condition": "kapital", "suggest": "tulis dengan huruf kecil, ini nama jenis atau satuan" },
+      "severity": "warning"
+    },
+    {
+      "id": "K03",
+      "category": "K",
+      "title": "Gelar, jabatan, dan pangkat yang diikuti nama",
+      "statement": "Gelar, jabatan, dan pangkat ditulis kapital hanya jika diikuti nama orang, nama instansi, atau nama tempat. Jika berdiri sendiri, ditulis kecil.",
+      "examples": [
+        { "salah": "Ia bertemu Presiden kemarin.", "benar": "Ia bertemu presiden kemarin." },
+        { "salah": "presiden Soekarno", "benar": "Presiden Soekarno" }
+      ],
+      "check": { "type": "heuristic", "trigger": ["presiden", "menteri", "gubernur", "bupati", "wali kota", "camat", "lurah", "profesor", "doktor", "jenderal", "kapten", "sultan", "haji", "imam", "nabi"], "suggest": "kapital hanya jika langsung diikuti nama" },
+      "severity": "warning"
+    },
+    {
+      "id": "K04",
+      "category": "K",
+      "title": "Bangsa, suku, dan bahasa",
+      "statement": "Nama bangsa, suku bangsa, dan bahasa ditulis kapital. Bentuk turunannya tidak.",
+      "examples": [
+        { "salah": "sikap Keinggris-inggrisan", "benar": "sikap keinggris-inggrisan" },
+        { "salah": "bahasa jawa", "benar": "bahasa Jawa" }
+      ],
+      "check": { "type": "heuristic", "suggest": "kapital untuk nama bangsa dan bahasa, kecil untuk bentuk turunan" },
+      "severity": "warning"
+    },
+    {
+      "id": "K05",
+      "category": "K",
+      "title": "Hari, bulan, hari besar, dan peristiwa sejarah",
+      "statement": "Nama hari, bulan, tahun, hari besar, dan peristiwa sejarah ditulis kapital. Peristiwa yang bukan nama diri tidak.",
+      "examples": [
+        { "salah": "hari jumat, bulan agustus", "benar": "hari Jumat, bulan Agustus" },
+        { "salah": "Perang Dunia itu Menewaskan jutaan orang", "benar": "perang itu menewaskan jutaan orang" }
+      ],
+      "check": { "type": "lexicon", "list": ["senin", "selasa", "rabu", "kamis", "jumat", "sabtu", "minggu", "januari", "februari", "maret", "april", "mei", "juni", "juli", "agustus", "september", "oktober", "november", "desember", "ramadan", "idulfitri", "iduladha", "natal", "nyepi", "waisak"], "condition": "huruf kecil", "suggest": "kapitalkan nama hari, bulan, atau hari besar" },
+      "severity": "error"
+    },
+    {
+      "id": "K06",
+      "category": "K",
+      "title": "Nama geografi, bukan nama jenis",
+      "statement": "Nama geografi ditulis kapital. Nama geografi yang dipakai sebagai nama jenis ditulis kecil.",
+      "examples": [
+        { "salah": "gula Jawa, kunci Inggris, jeruk Bali", "benar": "gula jawa, kunci inggris, jeruk bali" },
+        { "salah": "danau toba", "benar": "Danau Toba" }
+      ],
+      "check": { "type": "heuristic", "suggest": "kecil jika berfungsi sebagai nama jenis" },
+      "severity": "warning"
+    },
+    {
+      "id": "K07",
+      "category": "K",
+      "title": "Kata penunjuk kekerabatan sebagai sapaan",
+      "statement": "Kata seperti bapak, ibu, kakak, adik, paman ditulis kapital jika dipakai sebagai sapaan atau pengacuan langsung. Jika diikuti pemilik, ditulis kecil.",
+      "examples": [
+        { "salah": "Silakan duduk, bapak.", "benar": "Silakan duduk, Bapak." },
+        { "salah": "Itu Ibu saya.", "benar": "Itu ibu saya." }
+      ],
+      "check": { "type": "llm", "suggest": "putuskan berdasarkan fungsi sapaan atau bukan" },
+      "severity": "info",
+      "note": "Relevan untuk fiksi. Dialog sering memakai sapaan, narasi sering tidak."
+    },
+    {
+      "id": "K08",
+      "category": "K",
+      "title": "Judul karya",
+      "statement": "Setiap kata dalam judul ditulis kapital, kecuali kata tugas (di, ke, dari, dan, yang, untuk, dalam, pada, si, sang) yang tidak berada pada posisi awal.",
+      "examples": [{ "salah": "Jatuh Menemui Bapak Di Ujung Jalan", "benar": "Jatuh Menemui Bapak di Ujung Jalan" }],
+      "check": { "type": "regex", "pattern": "\\b(Di|Ke|Dari|Dan|Yang|Untuk|Dalam|Pada|Si|Sang)\\b", "scope": "title", "suggest": "kata tugas di tengah judul ditulis kecil" },
+      "severity": "warning"
+    },
+    {
+      "id": "K09",
+      "category": "K",
+      "title": "Kata ganti Anda",
+      "statement": "Kata ganti Anda selalu ditulis dengan huruf kapital.",
+      "examples": [{ "salah": "Apakah anda setuju?", "benar": "Apakah Anda setuju?" }],
+      "check": { "type": "regex", "pattern": "\\banda\\b", "suggest": "Anda" },
+      "severity": "error"
+    },
+    {
+      "id": "K10",
+      "category": "K",
+      "title": "Nama agama, kitab suci, dan Tuhan",
+      "statement": "Nama agama, kitab suci, Tuhan, dan kata ganti untuk Tuhan ditulis kapital, termasuk -Nya dan -Mu.",
+      "examples": [{ "salah": "islam, alquran, rahmat-nya", "benar": "Islam, Alquran, rahmat-Nya" }],
+      "check": { "type": "regex", "pattern": "-(nya|mu|ku)\\b(?=[^\\w]*(Tuhan|Allah))", "suggest": "gunakan -Nya, -Mu, -Ku untuk Tuhan" },
+      "severity": "warning"
+    },
+
+    {
+      "id": "M01",
+      "category": "M",
+      "title": "Judul karya dalam kalimat",
+      "statement": "Judul buku, majalah, surat kabar, dan film yang dikutip dalam tulisan ditulis miring.",
+      "examples": [{ "salah": "Ia membaca Bumi Manusia.", "benar": "Ia membaca *Bumi Manusia*." }],
+      "check": { "type": "llm" },
+      "severity": "info"
+    },
+    {
+      "id": "M02",
+      "category": "M",
+      "title": "Kata asing dan kata daerah",
+      "statement": "Kata atau ungkapan dalam bahasa asing atau bahasa daerah ditulis miring. Kata serapan yang sudah masuk KBBI tidak ditulis miring.",
+      "examples": [
+        { "salah": "Ia bekerja dengan *sistem* baru.", "benar": "Ia bekerja dengan sistem baru." },
+        { "salah": "Ini soal mindset.", "benar": "Ini soal *mindset*." }
+      ],
+      "check": { "type": "lexicon", "list": "kbbi", "condition": "tidak ada di KBBI dan tidak dimiringkan", "suggest": "miringkan kata asing, atau ganti dengan padanan Indonesia" },
+      "severity": "warning",
+      "note": "Ini alasan utama KBBI perlu tersedia secara lokal di aplikasi."
+    },
+    {
+      "id": "M03",
+      "category": "M",
+      "title": "Penegasan kata",
+      "statement": "Huruf miring menegaskan huruf, bagian kata, atau kata tertentu. Untuk menegaskan bagian yang sudah miring, gunakan huruf tebal.",
+      "examples": [{ "salah": "", "benar": "Huruf terakhir kata *abad* adalah *d*." }],
+      "check": { "type": "llm" },
+      "severity": "info"
+    },
+
+    {
+      "id": "W01",
+      "category": "W",
+      "title": "Kata depan di, ke, dari ditulis terpisah",
+      "statement": "Kata depan di, ke, dan dari ditulis terpisah dari kata yang mengikutinya karena menunjuk tempat, arah, atau asal.",
+      "examples": [
+        { "salah": "dirumah, kepasar, disana, disamping, dimana, diantara, diatas", "benar": "di rumah, ke pasar, di sana, di samping, di mana, di antara, di atas" }
+      ],
+      "check": {
+        "type": "regex",
+        "pattern": "\\b(di|ke)(rumah|sana|sini|situ|mana|samping|antara|atas|bawah|dalam|luar|depan|belakang|tengah|sekitar|seberang|balik|bawah|kala|saat|kantor|pasar|jalan|kamar|dapur|halaman|teras|ruang|kota|desa|sekolah|gereja|masjid|pantai|gunung|hutan|sungai|jakarta|bandung|surabaya)\\b",
+        "suggest": "pisahkan: $1 $2"
+      },
+      "severity": "error",
+      "note": "Kesalahan paling sering dalam bahasa Indonesia tulis. Daftar ini sengaja tidak lengkap, lapisan model menangani sisanya."
+    },
+    {
+      "id": "W02",
+      "category": "W",
+      "title": "Awalan di- dan ke- ditulis serangkai",
+      "statement": "Awalan di- pada kata kerja pasif dan awalan ke- pada kata benda atau bilangan tingkat ditulis serangkai.",
+      "examples": [
+        { "salah": "di pukul, di tulis, di lakukan, ke dua", "benar": "dipukul, ditulis, dilakukan, kedua" }
+      ],
+      "check": {
+        "type": "regex",
+        "pattern": "\\bdi\\s+(pukul|tulis|baca|makan|minum|buat|lakukan|bawa|ambil|beri|kirim|terima|lihat|dengar|panggil|bangun|jual|beli|tanam|potong|bakar|simpan|buka|tutup|kunci|angkat|letakkan|catat|kelola|urus|atur|tunda|batalkan|setujui|tolak|jemput|antar)\\b",
+        "suggest": "serangkaikan: di$1"
+      },
+      "severity": "error"
+    },
+    {
+      "id": "W03",
+      "category": "W",
+      "title": "Partikel pun",
+      "statement": "Partikel pun ditulis terpisah, kecuali pada gabungan yang sudah lazim dianggap padu.",
+      "examples": [
+        { "salah": "Sayapun pergi.", "benar": "Saya pun pergi." },
+        { "salah": "walau pun, meski pun, adapun ditulis terpisah", "benar": "walaupun, meskipun, adapun" }
+      ],
+      "check": { "type": "lexicon", "listPadu": ["adapun", "andaipun", "ataupun", "bagaimanapun", "biarpun", "kalaupun", "kendatipun", "maupun", "meskipun", "sekalipun", "sungguhpun", "walaupun"], "suggest": "pisahkan pun, kecuali kata pada daftar padu" },
+      "severity": "error"
+    },
+    {
+      "id": "W04",
+      "category": "W",
+      "title": "Partikel -lah, -kah, -tah",
+      "statement": "Partikel -lah, -kah, dan -tah ditulis serangkai dengan kata yang mendahuluinya.",
+      "examples": [{ "salah": "Apa kah itu benar? Duduk lah.", "benar": "Apakah itu benar? Duduklah." }],
+      "check": { "type": "regex", "pattern": "\\s+(lah|kah|tah)\\b", "suggest": "serangkaikan partikel dengan kata sebelumnya" },
+      "severity": "error"
+    },
+    {
+      "id": "W05",
+      "category": "W",
+      "title": "Partikel per",
+      "statement": "Partikel per yang berarti mulai, demi, atau tiap ditulis terpisah.",
+      "examples": [{ "salah": "perorang, per tama", "benar": "per orang, pertama" }],
+      "check": { "type": "heuristic", "suggest": "per + satuan ditulis terpisah" },
+      "severity": "warning"
+    },
+    {
+      "id": "W06",
+      "category": "W",
+      "title": "Kata ganti ku-, kau-, -ku, -mu, -nya",
+      "statement": "Kata ganti ku- dan kau- serta -ku, -mu, dan -nya ditulis serangkai.",
+      "examples": [{ "salah": "ku baca, kau ambil, buku mu, rumah nya", "benar": "kubaca, kauambil, bukumu, rumahnya" }],
+      "check": { "type": "regex", "pattern": "\\s+(ku|mu|nya)\\b", "suggest": "serangkaikan kata ganti dengan kata sebelumnya" },
+      "severity": "error"
+    },
+    {
+      "id": "W07",
+      "category": "W",
+      "title": "Gabungan kata dan kata majemuk",
+      "statement": "Unsur gabungan kata ditulis terpisah. Gabungan yang sudah padu ditulis serangkai.",
+      "examples": [
+        { "salah": "dutabesar, kambinghitam", "benar": "duta besar, kambing hitam" },
+        { "salah": "mata hari, olah raga, kaca mata, sapu tangan, bumi putra", "benar": "matahari, olahraga, kacamata, saputangan, bumiputra" }
+      ],
+      "check": { "type": "lexicon", "listPadu": ["matahari", "olahraga", "kacamata", "saputangan", "bumiputra", "sukacita", "dukacita", "halalbihalal", "kilometer", "peribahasa", "puspawarna", "saptamarga", "wiraswasta", "barangkali", "beasiswa", "belasungkawa", "bilamana", "bumiputra", "daripada", "kasatmata", "kepada", "manasuka", "padahal", "radioaktif", "saputangan", "sediakala", "segitiga", "sukarela", "syahbandar", "titimangsa"], "suggest": "gunakan bentuk padu" },
+      "severity": "warning"
+    },
+    {
+      "id": "W08",
+      "category": "W",
+      "title": "Gabungan kata berimbuhan",
+      "statement": "Gabungan kata yang mendapat awalan atau akhiran saja ditulis terpisah. Yang mendapat awalan dan akhiran sekaligus ditulis serangkai.",
+      "examples": [
+        { "salah": "bertandatangan, tandatangani", "benar": "bertanda tangan, tanda tangani" },
+        { "salah": "menanda tangani, pertanggung jawaban", "benar": "menandatangani, pertanggungjawaban" }
+      ],
+      "check": { "type": "heuristic", "suggest": "awalan saja atau akhiran saja berarti terpisah, awalan dan akhiran sekaligus berarti serangkai" },
+      "severity": "warning"
+    },
+    {
+      "id": "W09",
+      "category": "W",
+      "title": "Bentuk terikat ditulis serangkai",
+      "statement": "Bentuk terikat seperti antar, pasca, pra, pro, non, swa, tuna, multi, mono, semi, sub, ultra, ekstra, maha ditulis serangkai. Jika diikuti kata berhuruf awal kapital, gunakan tanda hubung.",
+      "examples": [
+        { "salah": "antar kota, pasca sarjana, non aktif, sub bab, semi final", "benar": "antarkota, pascasarjana, nonaktif, subbab, semifinal" },
+        { "salah": "nonIndonesia, proBarat", "benar": "non-Indonesia, pro-Barat" }
+      ],
+      "check": { "type": "regex", "pattern": "\\b(antar|pasca|pra|pro|non|swa|tuna|multi|mono|semi|sub|ultra|ekstra|adi|dwi|tri|catur|panca)\\s+([a-z]+)", "suggest": "serangkaikan: $1$2" },
+      "severity": "error"
+    },
+    {
+      "id": "W10",
+      "category": "W",
+      "title": "Maha",
+      "statement": "Maha ditulis serangkai dengan kata dasar, kecuali jika diikuti kata berimbuhan atau kata Esa, yang ditulis terpisah dan kapital dalam konteks Tuhan.",
+      "examples": [{ "salah": "Maha kuasa, Mahaesa", "benar": "Mahakuasa, Yang Maha Esa" }],
+      "check": { "type": "heuristic" },
+      "severity": "warning"
+    },
+    {
+      "id": "W11",
+      "category": "W",
+      "title": "Peluluhan k, p, t, s",
+      "statement": "Konsonan k, p, t, s pada awal kata dasar luluh setelah awalan me- atau pe-, kecuali pada gugus konsonan.",
+      "examples": [
+        { "salah": "mempengaruhi, mensukseskan, mentertawakan, mempunyai (benar), memproses (benar)", "benar": "memengaruhi, menyukseskan, menertawakan" },
+        { "salah": "memproduksi tetap benar karena pr adalah gugus konsonan", "benar": "memproduksi, memprogram, mentransfer" }
+      ],
+      "check": { "type": "lexicon", "list": ["mempengaruhi:memengaruhi", "mensukseskan:menyukseskan", "mentertawakan:menertawakan", "memparkir:memarkir", "mempesona:memesona", "mensosialisasikan:menyosialisasikan", "mentaati:menaati", "mempopulerkan:memopulerkan", "menkonsumsi:mengonsumsi", "mengkoordinasikan:mengoordinasikan", "mengkritik:mengkritik"], "suggest": "gunakan bentuk luluh" },
+      "severity": "error"
+    },
+    {
+      "id": "W12",
+      "category": "W",
+      "title": "Kata ulang",
+      "statement": "Bentuk ulang ditulis lengkap dengan tanda hubung. Angka 2 tidak dipakai sebagai penanda ulang dalam ragam formal.",
+      "examples": [{ "salah": "anak2, jalan jalan", "benar": "anak-anak, jalan-jalan" }],
+      "check": { "type": "regex", "pattern": "\\b([a-z]{3,})2\\b", "suggest": "tulis lengkap: $1-$1" },
+      "severity": "error"
+    },
+
+    {
+      "id": "A01",
+      "category": "A",
+      "title": "Bilangan pada awal kalimat",
+      "statement": "Bilangan pada awal kalimat ditulis dengan huruf. Jika terlalu panjang, susunan kalimat diubah.",
+      "examples": [{ "salah": "15 orang hadir.", "benar": "Lima belas orang hadir." }],
+      "check": { "type": "regex", "pattern": "(^|[.!?]\\s+)(\\d+)", "suggest": "tulis bilangan awal kalimat dengan huruf" },
+      "severity": "warning"
+    },
+    {
+      "id": "A02",
+      "category": "A",
+      "title": "Bilangan satu atau dua kata",
+      "statement": "Bilangan yang dapat dinyatakan dengan satu atau dua kata ditulis dengan huruf, kecuali dalam perincian.",
+      "examples": [{ "salah": "Ia membeli 3 buku.", "benar": "Ia membeli tiga buku." }],
+      "check": { "type": "heuristic" },
+      "severity": "info"
+    },
+    {
+      "id": "A03",
+      "category": "A",
+      "title": "Penulisan rupiah",
+      "statement": "Lambang Rp ditulis tanpa titik dan tanpa spasi, diikuti angka. Pemisah ribuan memakai titik dan desimal memakai koma.",
+      "examples": [{ "salah": "Rp. 5000,-  /  Rp 5,000.00", "benar": "Rp5.000,00" }],
+      "check": { "type": "regex", "pattern": "Rp\\.?\\s+\\d|Rp\\d+,-", "suggest": "Rp5.000,00" },
+      "severity": "error"
+    },
+    {
+      "id": "A04",
+      "category": "A",
+      "title": "Bilangan tingkat",
+      "statement": "Bilangan tingkat ditulis abad XX, abad ke-20, atau abad kedua puluh. Tanda hubung wajib pada ke- + angka.",
+      "examples": [{ "salah": "abad ke 20, ke-dua puluh", "benar": "abad ke-20, abad kedua puluh" }],
+      "check": { "type": "regex", "pattern": "\\bke\\s+\\d+\\b", "suggest": "ke-$1" },
+      "severity": "error"
+    },
+    {
+      "id": "A05",
+      "category": "A",
+      "title": "Akhiran -an pada angka",
+      "statement": "Angka yang mendapat akhiran -an memakai tanda hubung.",
+      "examples": [{ "salah": "tahun 1990an, uang 5.000an", "benar": "tahun 1990-an, uang 5.000-an" }],
+      "check": { "type": "regex", "pattern": "(\\d)an\\b", "suggest": "$1-an" },
+      "severity": "error"
+    },
+
+    {
+      "id": "S01",
+      "category": "S",
+      "title": "Singkatan umum tiga huruf",
+      "statement": "Singkatan umum yang terdiri atas tiga huruf atau lebih diikuti satu tanda titik.",
+      "examples": [{ "salah": "dll, dsb, dst, hlm, yth", "benar": "dll., dsb., dst., hlm., yth." }],
+      "check": { "type": "regex", "pattern": "\\b(dll|dsb|dst|hlm|yth|tsb)\\b(?!\\.)", "suggest": "$1." },
+      "severity": "warning"
+    },
+    {
+      "id": "S02",
+      "category": "S",
+      "title": "Singkatan dua huruf dengan dua titik",
+      "statement": "Singkatan yang terdiri atas dua huruf dalam surat menyurat memakai titik pada setiap huruf.",
+      "examples": [{ "salah": "an, up, da, sd", "benar": "a.n., u.p., d.a., s.d." }],
+      "check": { "type": "lexicon", "list": ["a.n.", "u.p.", "d.a.", "s.d."] },
+      "severity": "info"
+    },
+    {
+      "id": "S03",
+      "category": "S",
+      "title": "Singkatan lembaga tanpa titik",
+      "statement": "Singkatan nama lembaga, organisasi, dan dokumen resmi ditulis dengan huruf kapital tanpa titik.",
+      "examples": [{ "salah": "D.P.R., P.T. Bank", "benar": "DPR, PT Bank" }],
+      "check": { "type": "regex", "pattern": "\\b([A-Z]\\.){2,}", "suggest": "hapus titik pada singkatan lembaga" },
+      "severity": "warning"
+    },
+    {
+      "id": "S04",
+      "category": "S",
+      "title": "Lambang satuan tanpa titik",
+      "statement": "Lambang kimia, satuan ukuran, takaran, timbangan, dan mata uang tidak diikuti tanda titik.",
+      "examples": [{ "salah": "5 kg., 10 cm.", "benar": "5 kg, 10 cm" }],
+      "check": { "type": "regex", "pattern": "\\b(kg|cm|mm|km|ml|l|g|m)\\.", "suggest": "hapus titik setelah lambang satuan" },
+      "severity": "warning"
+    },
+    {
+      "id": "S05",
+      "category": "S",
+      "title": "Akronim nama diri dan bukan nama diri",
+      "statement": "Akronim nama diri ditulis dengan huruf awal kapital. Akronim yang bukan nama diri ditulis dengan huruf kecil.",
+      "examples": [
+        { "salah": "BULOG, BAPPENAS", "benar": "Bulog, Bappenas" },
+        { "salah": "Pemilu, Rudal, Iptek", "benar": "pemilu, rudal, iptek" }
+      ],
+      "check": { "type": "lexicon", "listNamaDiri": ["Bulog", "Bappenas", "Kowani", "Sespa", "Iwapi"], "listBukanNamaDiri": ["pemilu", "rudal", "tilang", "iptek", "puskesmas", "posyandu", "rapim", "sembako", "toserba"] },
+      "severity": "warning"
+    },
+
+    {
+      "id": "P01",
+      "category": "P",
+      "title": "Tidak ada titik pada judul",
+      "statement": "Tanda titik tidak dipakai pada akhir judul, kepala tabel, kepala ilustrasi, dan akhir alamat.",
+      "examples": [{ "salah": "Bab I: Kota yang Basah.", "benar": "Bab I: Kota yang Basah" }],
+      "check": { "type": "regex", "pattern": "\\.$", "scope": "heading", "suggest": "hapus titik pada judul" },
+      "severity": "warning"
+    },
+    {
+      "id": "P02",
+      "category": "P",
+      "title": "Koma pada perincian",
+      "statement": "Tanda koma dipakai di antara unsur perincian, termasuk sebelum kata dan pada unsur terakhir.",
+      "examples": [{ "salah": "buku, majalah dan koran", "benar": "buku, majalah, dan koran" }],
+      "check": { "type": "regex", "pattern": ",\\s+\\w+\\s+dan\\s+", "suggest": "tambahkan koma sebelum dan pada perincian" },
+      "severity": "warning"
+    },
+    {
+      "id": "P03",
+      "category": "P",
+      "title": "Koma setelah kata penghubung antarkalimat",
+      "statement": "Tanda koma dipakai setelah kata penghubung antarkalimat seperti jadi, namun, oleh karena itu, meskipun demikian, dengan demikian.",
+      "examples": [{ "salah": "Namun ia tetap pergi.", "benar": "Namun, ia tetap pergi." }],
+      "check": { "type": "regex", "pattern": "(^|[.!?]\\s+)(Namun|Jadi|Akan tetapi|Oleh karena itu|Oleh sebab itu|Dengan demikian|Meskipun demikian|Sebaliknya|Selain itu)\\s+(?!,)", "suggest": "tambahkan koma setelah kata penghubung" },
+      "severity": "warning"
+    },
+    {
+      "id": "P04",
+      "category": "P",
+      "title": "Koma pada anak kalimat yang mendahului",
+      "statement": "Tanda koma dipakai jika anak kalimat mendahului induk kalimat. Jika induk kalimat mendahului, koma tidak dipakai.",
+      "examples": [
+        { "salah": "Kalau hujan saya tidak datang.", "benar": "Kalau hujan, saya tidak datang." },
+        { "salah": "Saya tidak datang, kalau hujan.", "benar": "Saya tidak datang kalau hujan." }
+      ],
+      "check": { "type": "regex", "pattern": "(^|[.!?]\\s+)(Kalau|Jika|Ketika|Karena|Meskipun|Walaupun|Setelah|Sebelum|Sesudah|Sementara|Agar|Supaya)\\b[^,.!?]{3,60}\\s(saya|kami|ia|dia|mereka|kita|kamu)\\b", "suggest": "periksa koma antara anak kalimat dan induk kalimat" },
+      "severity": "warning"
+    },
+    {
+      "id": "P05",
+      "category": "P",
+      "title": "Tanda hubung pada singkatan berimbuhan",
+      "statement": "Tanda hubung dipakai untuk merangkai se- dengan kata berhuruf kapital, ke- dengan angka, angka dengan -an, dan singkatan berhuruf kapital dengan imbuhan.",
+      "examples": [{ "salah": "seIndonesia, KTPku, SIMnya", "benar": "se-Indonesia, KTP-ku, SIM-nya" }],
+      "check": { "type": "regex", "pattern": "\\b(se)([A-Z][a-z]+)|\\b([A-Z]{2,})(ku|mu|nya)\\b", "suggest": "sisipkan tanda hubung" },
+      "severity": "error"
+    },
+    {
+      "id": "P06",
+      "category": "P",
+      "title": "Tanda pisah untuk rentang",
+      "statement": "Tanda pisah dipakai di antara dua bilangan, tanggal, atau tempat dengan makna sampai dengan.",
+      "examples": [{ "salah": "1945-1950, Jakarta-Bandung", "benar": "1945—1950, Jakarta—Bandung" }],
+      "check": { "type": "regex", "pattern": "(\\d{4})-(\\d{4})", "suggest": "$1—$2" },
+      "severity": "info"
+    },
+    {
+      "id": "P07",
+      "category": "P",
+      "title": "Elipsis",
+      "statement": "Tanda elipsis berupa tiga titik dengan spasi. Pada akhir kalimat, tiga titik diikuti titik penutup kalimat.",
+      "examples": [{ "salah": "Ia diam.....", "benar": "Ia diam ...." }],
+      "check": { "type": "regex", "pattern": "\\.{5,}|\\w\\.{3}", "suggest": "gunakan tiga titik dengan spasi, empat titik di akhir kalimat" },
+      "severity": "warning"
+    },
+    {
+      "id": "P08",
+      "category": "P",
+      "title": "Spasi di sekitar tanda baca",
+      "statement": "Tidak ada spasi sebelum tanda baca penutup. Ada satu spasi sesudahnya.",
+      "examples": [{ "salah": "Ia pergi , lalu kembali.Ia diam.", "benar": "Ia pergi, lalu kembali. Ia diam." }],
+      "check": { "type": "regex", "pattern": "\\s+[,.;:!?]|[,;:]\\S|\\.[A-Za-z]", "suggest": "perbaiki spasi di sekitar tanda baca" },
+      "severity": "error"
+    },
+    {
+      "id": "P09",
+      "category": "P",
+      "title": "Petikan langsung dalam dialog",
+      "statement": "Petikan langsung diawali huruf kapital dan diakhiri tanda baca di dalam tanda petik. Koma memisahkan petikan dari kalimat pengiring.",
+      "examples": [{ "salah": "\"Aku pulang\", katanya.", "benar": "\"Aku pulang,\" katanya." }],
+      "check": { "type": "regex", "pattern": "\"\\s*,|\\w\"\\s*,\\s*(kata|ujar|sahut|tanya|jawab)", "suggest": "letakkan tanda baca di dalam tanda petik" },
+      "severity": "warning",
+      "note": "Aturan ini paling sering dilanggar dalam naskah fiksi. Konvensi penerbit dapat berbeda, jadi tandai sebagai peringatan, bukan kesalahan."
+    },
+    {
+      "id": "P10",
+      "category": "P",
+      "title": "Tanda petik lurus dan tanda petik tipografis",
+      "statement": "Naskah cetak memakai tanda petik tipografis. Tanda petik lurus adalah sisa mesin ketik.",
+      "examples": [{ "salah": "\"begitu\"", "benar": "“begitu”" }],
+      "check": { "type": "regex", "pattern": "[\"']", "suggest": "gunakan tanda petik tipografis" },
+      "severity": "info",
+      "note": "Nonaktifkan aturan ini dalam mode puisi jika penyair memang menghendaki tanda petik lurus."
+    },
+
+    {
+      "id": "U01",
+      "category": "U",
+      "title": "Serapan -ive menjadi -if, turunannya memakai v",
+      "statement": "Akhiran -ive diserap menjadi -if. Bentuk turunan bernomina memakai v, bukan f.",
+      "examples": [{ "salah": "aktifitas, efektifitas, kreatifitas, sportifitas, produktifitas", "benar": "aktivitas, efektivitas, kreativitas, sportivitas, produktivitas" }],
+      "check": { "type": "regex", "pattern": "\\b(\\w+)fitas\\b", "suggest": "$1vitas" },
+      "severity": "error"
+    },
+    {
+      "id": "U02",
+      "category": "U",
+      "title": "Serapan -ty menjadi -tas",
+      "statement": "Akhiran -ty atau -teit diserap menjadi -tas.",
+      "examples": [{ "salah": "kwalitas, kwantitas, universitet", "benar": "kualitas, kuantitas, universitas" }],
+      "check": { "type": "regex", "pattern": "\\bkw", "suggest": "ku" },
+      "severity": "error"
+    },
+    {
+      "id": "U03",
+      "category": "U",
+      "title": "Serapan -ic dan -ical",
+      "statement": "Akhiran -ic diserap menjadi -ik, dan -ical menjadi -is.",
+      "examples": [{ "salah": "klasikal untuk classic, ekonomik untuk economical", "benar": "klasik, ekonomis" }],
+      "check": { "type": "heuristic" },
+      "severity": "info"
+    },
+    {
+      "id": "U04",
+      "category": "U",
+      "title": "Huruf c dalam serapan",
+      "statement": "Huruf c menjadi k di depan a, u, o, dan konsonan, dan menjadi s di depan e, i, dan y.",
+      "examples": [{ "salah": "cubic, central", "benar": "kubik, sentral" }],
+      "check": { "type": "heuristic" },
+      "severity": "info"
+    },
+    {
+      "id": "U05",
+      "category": "U",
+      "title": "Kata asing yang belum diserap",
+      "statement": "Kata asing yang belum diserap ditulis miring dan sebaiknya diganti dengan padanan Indonesia jika ada.",
+      "examples": [{ "salah": "meeting, deadline, mindset", "benar": "rapat, tenggat, pola pikir" }],
+      "check": { "type": "lexicon", "list": "kbbi" },
+      "severity": "warning"
+    },
+
+    {
+      "id": "I01",
+      "category": "I",
+      "title": "Prioritas pembentukan istilah",
+      "statement": "Urutan pemilihan istilah: kata Indonesia yang lazim, kata Indonesia yang tidak lazim, kata serapan yang sudah masuk, kata serapan baru yang disesuaikan ejaannya.",
+      "examples": [{ "salah": "download menjadi mendownload", "benar": "unduh, mengunduh" }],
+      "check": { "type": "llm" },
+      "severity": "info"
+    },
+    {
+      "id": "I02",
+      "category": "I",
+      "title": "Istilah paling singkat",
+      "statement": "Di antara beberapa istilah yang bermakna sama, pilih yang paling singkat.",
+      "examples": [{ "salah": "gulma pengganggu tanaman", "benar": "gulma" }],
+      "check": { "type": "llm" },
+      "severity": "info"
+    }
+  ],
+
+  "kataBaku": [
+    { "salah": "analisa", "baku": "analisis" },
+    { "salah": "hipotesa", "baku": "hipotesis" },
+    { "salah": "praktek", "baku": "praktik" },
+    { "salah": "apotik", "baku": "apotek" },
+    { "salah": "resiko", "baku": "risiko" },
+    { "salah": "nasehat", "baku": "nasihat" },
+    { "salah": "jadual", "baku": "jadwal" },
+    { "salah": "hutang", "baku": "utang" },
+    { "salah": "ijin", "baku": "izin" },
+    { "salah": "karir", "baku": "karier" },
+    { "salah": "komplek", "baku": "kompleks" },
+    { "salah": "konkrit", "baku": "konkret" },
+    { "salah": "kwitansi", "baku": "kuitansi" },
+    { "salah": "silahkan", "baku": "silakan" },
+    { "salah": "sekedar", "baku": "sekadar" },
+    { "salah": "terlanjur", "baku": "telanjur" },
+    { "salah": "merubah", "baku": "mengubah" },
+    { "salah": "himbau", "baku": "imbau" },
+    { "salah": "handal", "baku": "andal" },
+    { "salah": "ekstrim", "baku": "ekstrem" },
+    { "salah": "atlit", "baku": "atlet" },
+    { "salah": "propinsi", "baku": "provinsi" },
+    { "salah": "azas", "baku": "asas" },
+    { "salah": "hakekat", "baku": "hakikat" },
+    { "salah": "sistim", "baku": "sistem" },
+    { "salah": "faham", "baku": "paham" },
+    { "salah": "telor", "baku": "telur" },
+    { "salah": "antri", "baku": "antre" },
+    { "salah": "obyek", "baku": "objek" },
+    { "salah": "subyek", "baku": "subjek" },
+    { "salah": "syaraf", "baku": "saraf" },
+    { "salah": "nomer", "baku": "nomor" },
+    { "salah": "rejeki", "baku": "rezeki" },
+    { "salah": "standarisasi", "baku": "standardisasi" },
+    { "salah": "sportifitas", "baku": "sportivitas" },
+    { "salah": "aktifitas", "baku": "aktivitas" },
+    { "salah": "efektifitas", "baku": "efektivitas" },
+    { "salah": "kreatifitas", "baku": "kreativitas" },
+    { "salah": "produktifitas", "baku": "produktivitas" },
+    { "salah": "kwalitas", "baku": "kualitas" },
+    { "salah": "kwantitas", "baku": "kuantitas" },
+    { "salah": "sholat", "baku": "salat" },
+    { "salah": "ustad", "baku": "ustaz" },
+    { "salah": "jum'at", "baku": "Jumat" },
+    { "salah": "do'a", "baku": "doa" },
+    { "salah": "adzan", "baku": "azan" },
+    { "salah": "ramadhan", "baku": "Ramadan" },
+    { "salah": "kaidah bahasa: dimana", "baku": "di mana" },
+    { "salah": "disamping itu", "baku": "di samping itu" },
+    { "salah": "diantaranya", "baku": "di antaranya" },
+    { "salah": "kedalam", "baku": "ke dalam" },
+    { "salah": "keluar negeri", "baku": "ke luar negeri" },
+    { "salah": "acuh", "baku": "acuh berarti peduli, bukan tidak peduli" },
+    { "salah": "absensi", "baku": "presensi untuk daftar hadir" },
+    { "salah": "mempengaruhi", "baku": "memengaruhi" },
+    { "salah": "mentaati", "baku": "menaati" },
+    { "salah": "mensukseskan", "baku": "menyukseskan" },
+    { "salah": "menyolok", "baku": "mencolok" },
+    { "salah": "pungkir", "baku": "mungkir" },
+    { "salah": "seksama", "baku": "saksama" },
+    { "salah": "cendikiawan", "baku": "cendekiawan" },
+    { "salah": "ijasah", "baku": "ijazah" },
+    { "salah": "izajah", "baku": "ijazah" },
+    { "salah": "trotoar", "baku": "trotoar" },
+    { "salah": "aktifis", "baku": "aktivis" },
+    { "salah": "kwitansi", "baku": "kuitansi" },
+    { "salah": "khawatir", "baku": "khawatir" },
+    { "salah": "kuatir", "baku": "khawatir" },
+    { "salah": "pikir", "baku": "pikir" },
+    { "salah": "fikir", "baku": "pikir" },
+    { "salah": "nafas", "baku": "napas" },
+    { "salah": "nasib", "baku": "nasib" },
+    { "salah": "putera", "baku": "putra" },
+    { "salah": "puteri", "baku": "putri" },
+    { "salah": "sekretaris", "baku": "sekretaris" },
+    { "salah": "sekertaris", "baku": "sekretaris" },
+    { "salah": "tehnik", "baku": "teknik" },
+    { "salah": "tekhnologi", "baku": "teknologi" },
+    { "salah": "zaman", "baku": "zaman" },
+    { "salah": "jaman", "baku": "zaman" }
+  ],
+
+  "engineNotes": {
+    "urutanEksekusi": [
+      "1. lexicon: kata baku dan ejaan, hasil pasti, tampilkan langsung",
+      "2. regex: aturan mekanis seperti di- dan ke-, Rp, ke-2, aktifitas",
+      "3. heuristic: tandai sebagai kandidat, jangan koreksi otomatis",
+      "4. llm: hanya untuk kalimat yang lolos tiga lapis di atas dan masih dicurigai"
+    ],
+    "prinsip": [
+      "Setiap temuan wajib menyebut id aturan. Penulis berhak tahu dasar koreksinya.",
+      "Tidak ada koreksi otomatis. Semua saran harus diterima penulis satu per satu.",
+      "Mode puisi menonaktifkan seluruh aturan tanda baca dan kapital. Penyair memang melanggar dengan sengaja.",
+      "Mode dialog dalam fiksi menonaktifkan aturan kata baku, karena tokoh boleh berbicara tidak baku.",
+      "Aturan yang dinonaktifkan penulis harus diingat per proyek."
+    ]
+  }
+}

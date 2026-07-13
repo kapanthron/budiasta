@@ -1,0 +1,44 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main, claude/github-app-deployment-7mhba1]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      # Guard against the classic "hello world" deploy: fail fast if the
+      # artifact we are about to publish is not the real app.
+      - name: Verify site content before upload
+        run: |
+          grep -q "Manuskrip" index.html
+          test -f src/main.js
+          test -f data/puebi_eyd_rules.json
+          python3 -c "import json; json.load(open('data/puebi_eyd_rules.json'))"
+
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+      - id: deployment
+        uses: actions/deploy-pages@v4

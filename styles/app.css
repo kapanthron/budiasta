@@ -1,0 +1,115 @@
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0; background: var(--surface); color: var(--ink);
+  font: 14px/1.5 var(--font-ui); display: flex; flex-direction: column;
+}
+button, select, input, textarea {
+  font: inherit; color: var(--ink); background: var(--surface-2);
+  border: 1px solid var(--line); border-radius: var(--radius);
+}
+button { padding: 3px 10px; cursor: pointer; }
+button:hover { background: var(--surface-3); }
+:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 1px; }
+.spacer { flex: 1; }
+
+#toolbar {
+  display: flex; align-items: center; gap: 8px; padding: 8px 12px;
+  border-bottom: 1px solid var(--line); background: var(--surface-2);
+}
+#brand { font-weight: 700; letter-spacing: 0.04em; color: var(--accent); }
+#project-title { background: transparent; border-color: transparent; font-weight: 600; min-width: 16ch; }
+#project-title:hover, #project-title:focus { border-color: var(--line); background: var(--surface); }
+
+#layout { flex: 1; display: grid; grid-template-columns: 230px 1fr 320px; min-height: 0; }
+.col-head { display: flex; align-items: center; gap: 6px; padding: 8px 10px; font-weight: 600; border-bottom: 1px solid var(--line); }
+
+/* Binder */
+#binder { border-right: 1px solid var(--line); overflow-y: auto; background: var(--surface); }
+#tree, #tree ul { list-style: none; margin: 0; padding: 0 0 0 12px; }
+#tree { padding: 6px; }
+.node-row {
+  display: flex; align-items: center; gap: 6px; padding: 3px 6px;
+  border-radius: var(--radius); cursor: pointer; user-select: none;
+}
+.node-row:hover { background: var(--surface-2); }
+.node-row.active { background: var(--sel); }
+.node-row .icon { width: 1.2em; text-align: center; color: var(--ink-soft); }
+.node-row .title { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.node-row .actions { visibility: hidden; display: flex; gap: 2px; }
+.node-row:hover .actions { visibility: visible; }
+.node-row .actions button { padding: 0 5px; border: none; background: transparent; color: var(--ink-soft); }
+.node-row .actions button:hover { color: var(--ink); }
+.node-row input.rename { flex: 1; min-width: 0; }
+
+/* Editor */
+#editor-col { display: flex; flex-direction: column; min-width: 0; }
+#page-wrap { flex: 1; overflow-y: auto; display: flex; justify-content: center; padding: 32px 24px; }
+#page {
+  width: 100%; max-width: var(--page-measure); min-height: 60vh;
+  background: var(--page); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 48px clamp(24px, 5vw, 64px); resize: none;
+  font-family: var(--font-page); font-size: var(--page-size); line-height: var(--page-leading);
+}
+#page:focus-visible { outline: 1px solid var(--line); }
+#status {
+  display: flex; gap: 16px; padding: 5px 14px; border-top: 1px solid var(--line);
+  color: var(--ink-soft); font-size: 12.5px; background: var(--surface-2);
+}
+#st-ceiling[data-over="1"] { color: var(--danger); }
+#st-saved.dirty { color: var(--warn); }
+
+/* Inspector */
+#inspector { border-left: 1px solid var(--line); display: flex; flex-direction: column; min-height: 0; }
+#insp-tabs { display: flex; border-bottom: 1px solid var(--line); }
+#insp-tabs button { flex: 1; border: none; border-radius: 0; background: var(--surface-2); padding: 7px 4px; color: var(--ink-soft); }
+#insp-tabs button.active { background: var(--surface); color: var(--ink); font-weight: 600; box-shadow: inset 0 -2px var(--accent); }
+#insp-body { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+#insp-body label { display: flex; flex-direction: column; gap: 3px; font-size: 12.5px; color: var(--ink-soft); }
+#insp-body input, #insp-body textarea, #insp-body select { padding: 5px 8px; background: var(--surface); }
+#insp-body textarea { min-height: 70px; resize: vertical; }
+.insp-note { font-size: 12.5px; color: var(--ink-soft); }
+.insp-row { display: flex; gap: 8px; }
+.insp-row > * { flex: 1; }
+
+/* Findings, snapshots, cuts */
+.card {
+  border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 8px 10px; background: var(--surface); display: flex; flex-direction: column; gap: 5px;
+}
+.card .rule-id { font-weight: 700; font-size: 12px; }
+.card[data-sev="error"] .rule-id { color: var(--danger); }
+.card[data-sev="warning"] .rule-id { color: var(--warn); }
+.card[data-sev="info"] .rule-id { color: var(--ink-soft); }
+.card .excerpt { font-family: var(--font-page); }
+.card .excerpt mark { background: var(--sel); color: inherit; border-radius: 3px; padding: 0 2px; }
+.card .stmt { font-size: 12.5px; color: var(--ink-soft); }
+.card .card-actions { display: flex; gap: 6px; }
+.card .card-actions .apply { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.kamus-sense { margin: 2px 0; }
+.badge { display: inline-block; font-size: 11px; border: 1px solid var(--line); border-radius: 10px; padding: 0 8px; color: var(--ink-soft); }
+
+/* Dialogs */
+dialog {
+  background: var(--surface); color: var(--ink); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 18px; min-width: 340px;
+}
+dialog::backdrop { background: rgba(0,0,0,0.35); }
+dialog h3 { margin: 0 0 10px; }
+dialog label { display: flex; align-items: center; gap: 8px; margin: 8px 0; }
+.dialog-actions { display: flex; justify-content: flex-end; margin-top: 12px; }
+
+#palette-dialog { width: 480px; padding: 10px; }
+#palette-input { width: 100%; padding: 8px 10px; background: var(--surface-2); }
+#palette-list { list-style: none; margin: 8px 0 0; padding: 0; max-height: 300px; overflow-y: auto; }
+#palette-list li { padding: 6px 10px; border-radius: var(--radius); cursor: pointer; display: flex; gap: 8px; }
+#palette-list li .hint { color: var(--ink-soft); font-size: 12px; margin-left: auto; }
+#palette-list li.sel, #palette-list li:hover { background: var(--sel); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .node-row, button, #insp-tabs button { transition: background 0.12s ease; }
+}
+@media (max-width: 900px) {
+  #layout { grid-template-columns: 180px 1fr; }
+  #inspector { display: none; }
+}

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'">
+<title>Manuskrip — studio menulis</title>
+<link rel="stylesheet" href="styles/tokens.css">
+<link rel="stylesheet" href="styles/app.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ctext y='13' font-size='13'%3E%E2%9C%8D%3C/text%3E%3C/svg%3E">
+</head>
+<body>
+<header id="toolbar">
+  <span id="brand">Manuskrip</span>
+  <input id="project-title" aria-label="Judul proyek" spellcheck="false">
+  <select id="mode-select" aria-label="Mode proyek">
+    <option value="prose">Prosa</option>
+    <option value="poetry">Puisi</option>
+    <option value="column">Kolom</option>
+    <option value="screenplay">Skenario</option>
+  </select>
+  <span class="spacer"></span>
+  <select id="theme-select" aria-label="Tema"></select>
+  <button id="btn-typography" title="Tipografi">Aa</button>
+  <button id="btn-export" title="Ekspor proyek sebagai JSON">Ekspor</button>
+  <button id="btn-import" title="Impor proyek dari JSON">Impor</button>
+  <button id="btn-palette" title="Palet perintah (Ctrl+K)">⌘K</button>
+</header>
+
+<main id="layout">
+  <nav id="binder" aria-label="Binder">
+    <div class="col-head">
+      <span>Binder</span>
+      <span class="spacer"></span>
+      <button id="btn-new-doc" title="Dokumen baru">+ Dok</button>
+      <button id="btn-new-folder" title="Map baru">+ Map</button>
+    </div>
+    <ul id="tree" role="tree"></ul>
+  </nav>
+
+  <section id="editor-col">
+    <div id="page-wrap">
+      <textarea id="page" spellcheck="false" placeholder="Tulis di sini. Setiap jeda tersimpan otomatis." aria-label="Halaman"></textarea>
+    </div>
+    <footer id="status">
+      <span id="st-words">0 kata</span>
+      <span id="st-session">sesi +0</span>
+      <span id="st-ceiling" hidden></span>
+      <span id="st-read">0 mnt</span>
+      <span class="spacer"></span>
+      <span id="st-saved">tersimpan</span>
+    </footer>
+  </section>
+
+  <aside id="inspector" aria-label="Inspector">
+    <div id="insp-tabs" role="tablist">
+      <button data-tab="info" class="active" role="tab">Dokumen</button>
+      <button data-tab="bahasa" role="tab">Bahasa</button>
+      <button data-tab="snapshots" role="tab">Snapshot</button>
+      <button data-tab="cuts" role="tab">Cuts</button>
+    </div>
+    <div id="insp-body"></div>
+  </aside>
+</main>
+
+<dialog id="typo-dialog">
+  <h3>Tipografi halaman</h3>
+  <label>Huruf
+    <select id="typo-family">
+      <option value="georgia">Georgia (serif)</option>
+      <option value="palatino">Palatino (serif)</option>
+      <option value="system">Sistem (sans)</option>
+      <option value="mono">Mono</option>
+    </select>
+  </label>
+  <label>Ukuran <input id="typo-size" type="range" min="14" max="26" step="1"> <span id="typo-size-v"></span></label>
+  <label>Jarak baris <input id="typo-leading" type="range" min="1.3" max="2.2" step="0.05"> <span id="typo-leading-v"></span></label>
+  <label>Lebar ukur (karakter) <input id="typo-measure" type="range" min="45" max="90" step="1"> <span id="typo-measure-v"></span></label>
+  <div class="dialog-actions"><button id="typo-close">Tutup</button></div>
+</dialog>
+
+<dialog id="palette-dialog">
+  <input id="palette-input" placeholder="Perintah atau dokumen…" aria-label="Cari perintah">
+  <ul id="palette-list"></ul>
+</dialog>
+
+<input type="file" id="file-import" accept="application/json" hidden>
+<input type="file" id="file-kbbi" accept="application/json" hidden>
+
+<script type="module" src="src/main.js"></script>
+</body>
+</html>
