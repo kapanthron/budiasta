@@ -5,7 +5,7 @@
 import { kvGet, kvSet } from './store.js';
 
 const PROVIDERS = [
-  { id: 'gemini', label: 'Google AI Studio', base: 'https://generativelanguage.googleapis.com/v1beta/openai', model: 'gemini-2.5-flash' },
+  { id: 'gemini', label: 'Google AI Studio', base: 'https://generativelanguage.googleapis.com/v1beta/openai', model: 'gemini-flash-latest' },
   { id: 'groq', label: 'Groq', base: 'https://api.groq.com/openai/v1', model: 'llama-3.3-70b-versatile' },
   { id: 'openrouter', label: 'OpenRouter', base: 'https://openrouter.ai/api/v1', model: '' },
   { id: 'custom', label: 'Custom (OpenAI-compatible)', base: '', model: '' },
@@ -160,14 +160,31 @@ export async function renderAssistantChat(app, container) {
     chat.push({ role: 'assistant', content: '…' });
     renderMsgs();
     app.logActivity?.('ai-chat', cfg.provider);
+    const payload = [
+      { role: 'system', content: 'Kamu asisten menulis berbahasa Indonesia untuk aplikasi Budiasta. Bantu penulis menyunting, meringkas, memberi saran, atau menjawab pertanyaan. Jawab ringkas dan jelas dalam bahasa Indonesia. Jangan menilai gaya penulis.' },
+      ...chat.slice(0, -1),
+    ];
+    const key = await resolveKey();
     try {
-      const reply = await callModel(cfg, await resolveKey(), [
-        { role: 'system', content: 'Kamu asisten menulis berbahasa Indonesia untuk aplikasi Budiasta. Bantu penulis menyunting, meringkas, memberi saran, atau menjawab pertanyaan. Jawab ringkas dan jelas dalam bahasa Indonesia. Jangan menilai gaya penulis.' },
-        ...chat.slice(0, -1),
-      ]);
+      let reply;
+      try {
+        reply = await callModel(cfg, key, payload);
+      } catch (err) {
+        // Model retired/unknown? Fetch the live list, switch to a valid one, retry once.
+        if (err.status === 404) {
+          const ids = await listModels(cfg, key).catch(() => []);
+          const better = pickModel(ids, cfg.model);
+          if (better && better !== cfg.model) {
+            cfg.model = better; app.save();
+            chat[chat.length - 1].content = `(mengganti model ke ${better}…)`;
+            renderMsgs();
+            reply = await callModel(cfg, key, payload);
+          } else throw err;
+        } else throw err;
+      }
       chat[chat.length - 1].content = reply || '(kosong)';
     } catch (err) {
-      chat[chat.length - 1].content = 'Gagal: ' + err.message + '. Periksa kunci, model, dan kuota penyedia.';
+      chat[chat.length - 1].content = 'Gagal: ' + err.message;
     }
     renderMsgs();
   }
@@ -197,9 +214,26 @@ async function callModel(cfg, key, messages) {
     headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
     body: JSON.stringify({ model: cfg.model, temperature: 0.3, messages }),
   });
-  if (!res.ok) throw new Error(await errText(res, cfg.model));
+  if (!res.ok) { const e = new Error(await errText(res, cfg.model)); e.status = res.status; throw e; }
   const data = await res.json();
   return data.choices?.[0]?.message?.content || '';
+}
+
+// Prefer a general flash chat model; avoid non-chat variants (embedding, tts,
+// image, vision-only, thinking). Fall back to the first id if nothing matches.
+function pickModel(ids, current) {
+  if (!ids?.length) return null;
+  const bad = /embedding|aqa|image|imagen|vision|tts|audio|veo|learnlm|gemma/i;
+  const usable = ids.filter(id => id !== current && !bad.test(id));
+  const prefer = [
+    id => /gemini-flash-latest/i.test(id),
+    id => /gemini-[\d.]+-flash$/i.test(id),
+    id => /flash/i.test(id) && !/lite|thinking/i.test(id),
+    id => /flash/i.test(id),
+    () => true,
+  ];
+  for (const test of prefer) { const hit = usable.find(test); if (hit) return hit; }
+  return usable[0] || null;
 }
 
 // GET the provider's model list (OpenAI-compatible /models). Ids may carry a
