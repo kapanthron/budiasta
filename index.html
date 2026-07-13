@@ -26,6 +26,8 @@
   <button id="btn-dark" title="Ganti terang/gelap">◐</button>
   <select id="theme-select" aria-label="Tema" class="desktop-only"></select>
   <button id="btn-typography" title="Tipografi & font">Aa</button>
+  <button id="btn-search" title="Cari (Ctrl+F)">🔍</button>
+  <button id="btn-focus" title="Mode fokus (Esc keluar)">◲</button>
   <button id="btn-download" title="Unduh / bagikan">Unduh</button>
   <button id="btn-user" title="Akun">Masuk</button>
   <button id="btn-about" title="Tentang Budiasta">?</button>
@@ -42,12 +44,35 @@
       <span class="spacer"></span>
       <button id="btn-new-doc" title="Dokumen baru">+ Dok</button>
       <button id="btn-new-folder" title="Map baru">+ Map</button>
+      <button id="btn-new-screenplay" title="Templat skenario">+ Skenario</button>
       <button class="mobile-only close-drawer" data-close="binder" aria-label="Tutup">×</button>
     </div>
     <ul id="tree" role="tree"></ul>
   </nav>
 
   <section id="editor-col">
+    <div id="format-bar">
+      <button id="fmt-undo" title="Urungkan (Ctrl+Z)">↶</button>
+      <button id="fmt-redo" title="Ulangi (Ctrl+Shift+Z)">↷</button>
+      <span class="fb-sep"></span>
+      <button id="fmt-bold" title="Tebal (Ctrl+B)"><b>B</b></button>
+      <button id="fmt-italic" title="Miring (Ctrl+I)"><i>I</i></button>
+      <button id="fmt-strike" title="Coret"><s>S</s></button>
+      <span class="fb-sep"></span>
+      <button class="fmt-align" data-align="left" title="Rata kiri">⯇</button>
+      <button class="fmt-align" data-align="center" title="Rata tengah">≡</button>
+      <button class="fmt-align" data-align="right" title="Rata kanan">⯈</button>
+      <button class="fmt-align" data-align="justify" title="Rata kiri-kanan">▤</button>
+    </div>
+    <div id="search-bar" hidden>
+      <input id="search-input" placeholder="Cari di dokumen…" aria-label="Cari">
+      <span id="search-count"></span>
+      <button id="search-prev" title="Sebelumnya">‹</button>
+      <button id="search-next" title="Berikutnya">›</button>
+      <button id="search-all" title="Cari di semua dokumen">Semua</button>
+      <button id="search-close" title="Tutup (Esc)">×</button>
+    </div>
+    <div id="search-results" hidden></div>
     <div id="page-wrap">
       <textarea id="page" spellcheck="false" placeholder="Tulis di sini. Setiap jeda tersimpan otomatis." aria-label="Halaman"></textarea>
     </div>
@@ -75,6 +100,7 @@
   </aside>
 </main>
 <div id="drawer-scrim" hidden></div>
+<button id="focus-exit" title="Keluar mode fokus (Esc)">Selesai fokus</button>
 
 <dialog id="typo-dialog">
   <h3>Tipografi halaman</h3>
@@ -89,6 +115,7 @@
   <label>Ukuran <input id="typo-size" type="range" min="14" max="26" step="1"> <span id="typo-size-v"></span></label>
   <label>Jarak baris <input id="typo-leading" type="range" min="1.3" max="2.2" step="0.05"> <span id="typo-leading-v"></span></label>
   <label>Lebar ukur (karakter) <input id="typo-measure" type="range" min="45" max="90" step="1"> <span id="typo-measure-v"></span></label>
+  <label class="row-check"><input id="typo-ligatures" type="checkbox"> Ligatur (fi, fl, ﬀ…)</label>
   <h3>Font sendiri</h3>
   <p class="insp-note">Pasang berkas .ttf, .otf, atau .woff2 milik Anda. Font disimpan di peramban ini saja.</p>
   <div class="insp-row">
@@ -106,13 +133,18 @@
       <option value="project">Seluruh manuskrip</option>
     </select>
   </label>
+  <p class="insp-note">Centang format yang diinginkan, lalu Unduh atau Bagikan.</p>
   <div class="export-grid">
-    <button id="exp-txt">TXT</button>
-    <button id="exp-doc">DOC (Word)</button>
-    <button id="exp-pdf">PDF (cetak)</button>
+    <label><input type="checkbox" id="fmt-txt" checked> TXT</label>
+    <label><input type="checkbox" id="fmt-docx"> DOC (Word)</label>
+    <label><input type="checkbox" id="fmt-pdf"> PDF (cetak)</label>
+    <label><input type="checkbox" id="fmt-md"> Markdown</label>
+  </div>
+  <div class="insp-row">
+    <button id="exp-download" class="apply">Unduh terpilih</button>
     <button id="exp-share">Bagikan…</button>
   </div>
-  <p class="insp-note">PDF dibuat lewat dialog cetak peramban: pilih “Simpan sebagai PDF”.</p>
+  <p class="insp-note">PDF dibuat lewat dialog cetak peramban: pilih “Simpan sebagai PDF”. Bagikan mengirim berkas TXT/DOC/MD terpilih (PDF lewat cetak).</p>
   <div class="dialog-actions"><button id="exp-close">Tutup</button></div>
 </dialog>
 
@@ -133,6 +165,17 @@
 <dialog id="account-dialog">
   <div id="account-body"></div>
   <div class="dialog-actions"><button id="account-close">Tutup</button></div>
+</dialog>
+
+<dialog id="theme-dialog">
+  <h3>Tema khusus — pilih warna sendiri</h3>
+  <label>Latar <input type="color" id="ct-surface"></label>
+  <label>Latar sekunder <input type="color" id="ct-surface2"></label>
+  <label>Tinta (teks) <input type="color" id="ct-ink"></label>
+  <label>Aksen <input type="color" id="ct-accent"></label>
+  <label>Halaman <input type="color" id="ct-page"></label>
+  <label>Garis <input type="color" id="ct-line"></label>
+  <div class="dialog-actions"><button id="ct-close">Tutup</button></div>
 </dialog>
 
 <dialog id="palette-dialog">

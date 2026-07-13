@@ -16,6 +16,7 @@ export function initEditor(app) {
     page.value = doc ? doc.body : '';
     page.disabled = !doc;
     sessionBase = doc ? countWords(doc.body) : 0;
+    app.syncFormatBar?.();
     status();
   }
 

@@ -10,6 +10,9 @@ import { initAbout } from './about.js';
 import { assistantDefaults } from './assistant.js';
 import { initAuth } from './auth.js';
 import { initSync } from './sync.js';
+import { initFormat } from './format.js';
+import { initSearch } from './search.js';
+import { blankDoc } from './store.js';
 
 const app = {
   state: null,
@@ -59,11 +62,46 @@ async function boot() {
 
   await initTheme(app);
   initEditor(app);
+  initFormat(app);
   initBinder(app);
   initInspector(app);
   initPalette(app);
+  initSearch(app);
   initExportDoc(app);
   initAbout(app);
+
+  // distraction-free / focus mode
+  const toggleFocus = (on) => document.body.classList.toggle('focus', on ?? !document.body.classList.contains('focus'));
+  document.getElementById('btn-focus').addEventListener('click', () => toggleFocus());
+  document.getElementById('focus-exit').addEventListener('click', () => toggleFocus(false));
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && document.body.classList.contains('focus')) toggleFocus(false);
+  });
+
+  // screenplay template: new document, Courier font, Fountain-style scaffold
+  const SCREENPLAY = [
+    'INT. LOKASI - MALAM', '',
+    'Deskripsi aksi. Tuliskan apa yang terlihat di layar, ringkas dan sekarang.', '',
+    '                    NAMA TOKOH',
+    '          (nada bicara)',
+    '     Dialog tokoh ditulis di sini, di bawah namanya.', '',
+    '                    TOKOH LAIN',
+    '     Balasan dialog.', '',
+    'CUT TO:', '',
+    'EXT. LOKASI LAIN - SIANG', '',
+    'Aksi berikutnya.',
+  ].join('\n');
+  document.getElementById('btn-new-screenplay').addEventListener('click', () => {
+    const node = app.addNode('document');
+    node.title = 'Skenario';
+    app.state.documents[node.id] = Object.assign(blankDoc(), { body: SCREENPLAY });
+    app.state.project.mode = 'screenplay';
+    document.getElementById('mode-select').value = 'screenplay';
+    app.setFont?.('courier');
+    app.openDoc(node.id);
+    app.renderBinder();
+    app.logActivity?.('templat-skenario');
+  });
 
   // mobile drawers
   document.getElementById('btn-toggle-binder').addEventListener('click', () => toggleDrawer('binder'));
