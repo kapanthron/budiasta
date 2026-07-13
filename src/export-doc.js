@@ -39,7 +39,9 @@ export function initExportDoc(app) {
 
   document.getElementById('exp-txt').addEventListener('click', () => {
     const parts = collect();
-    if (parts.length) download(new Blob([asText(parts)], { type: 'text/plain;charset=utf-8' }), 'txt');
+    if (!parts.length) return;
+    download(new Blob([asText(parts)], { type: 'text/plain;charset=utf-8' }), 'txt');
+    app.logActivity?.('unduh-txt', scopeSel.value);
   });
 
   const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -55,6 +57,7 @@ export function initExportDoc(app) {
       parts.map(p => `<h1>${esc(p.title)}</h1>${paras(p.body)}`).join('<br clear="all" style="page-break-before:always">') +
       `</body></html>`;
     download(new Blob(['﻿', html], { type: 'application/msword' }), 'doc');
+    app.logActivity?.('unduh-doc', scopeSel.value);
   });
 
   document.getElementById('exp-pdf').addEventListener('click', () => {
@@ -74,6 +77,7 @@ export function initExportDoc(app) {
       }
     });
     dlg.close();
+    app.logActivity?.('unduh-pdf', scopeSel.value);
     window.print();
   });
 
@@ -85,6 +89,7 @@ export function initExportDoc(app) {
     try {
       if (navigator.canShare?.({ files: [file] })) {
         await navigator.share({ files: [file], title: app.state.project.title });
+        app.logActivity?.('bagikan', scopeSel.value);
       } else if (navigator.share) {
         await navigator.share({ title: app.state.project.title, text: text.slice(0, 20000) });
       } else {

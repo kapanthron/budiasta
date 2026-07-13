@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self' blob:; connect-src 'self' https:">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://accounts.google.com/gsi/client; frame-src https://accounts.google.com/gsi/; style-src 'self' https://accounts.google.com/gsi/style; img-src 'self' data: https://*.googleusercontent.com; font-src 'self' blob:; connect-src 'self' https:">
 <title>Budiasta — Asta Tumuju ing Budi</title>
 <link rel="stylesheet" href="styles/tokens.css">
 <link rel="stylesheet" href="styles/app.css">
@@ -26,6 +26,7 @@
   <select id="theme-select" aria-label="Tema" class="desktop-only"></select>
   <button id="btn-typography" title="Tipografi & font">Aa</button>
   <button id="btn-download" title="Unduh / bagikan">Unduh</button>
+  <button id="btn-user" title="Akun">Masuk</button>
   <button id="btn-about" title="Tentang Budiasta">?</button>
   <button id="btn-export" title="Cadangkan proyek sebagai JSON" class="desktop-only">Ekspor</button>
   <button id="btn-import" title="Impor proyek dari JSON" class="desktop-only">Impor</button>
@@ -118,6 +119,17 @@
     <button id="about-edit">Ubah (admin)</button>
     <button id="about-close">Tutup</button>
   </div>
+</dialog>
+
+<dialog id="login-dialog">
+  <h3>Masuk dengan Google</h3>
+  <div id="login-body"></div>
+  <div class="dialog-actions"><button id="login-close">Lanjut sebagai tamu</button></div>
+</dialog>
+
+<dialog id="account-dialog">
+  <div id="account-body"></div>
+  <div class="dialog-actions"><button id="account-close">Tutup</button></div>
 </dialog>
 
 <dialog id="palette-dialog">

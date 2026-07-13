@@ -27,6 +27,21 @@ Dibuat dan dikembangkan oleh **Panthron Mahagama**.
 - **Tema** — 4 tema berbasis token + sakelar terang/gelap satu ketukan.
 - **Snapshot & Laci Cuts** — tidak ada kata yang hilang; Ctrl+Shift+X memarkir seleksi.
 - **Tentang** — halaman Tentang dapat disunting pemilik lewat kunci admin lokal.
+- **Masuk dengan Google** — opsional. Akun pertama yang masuk di sebuah peramban menjadi
+  admin: akses penuh (sunting Tentang tanpa kunci, kelola daftar admin, lihat/unduh log
+  aktivitas). Setiap tindakan penting (masuk, simpan, buat/hapus/ganti nama dokumen, unduh,
+  bagikan, panggilan AI) dicatat dengan ID akun Google dan waktunya.
+
+### Penyiapan login Google (sekali, oleh pemilik)
+1. Buka [console.cloud.google.com](https://console.cloud.google.com) → APIs & Services → Credentials.
+2. Create Credentials → **OAuth client ID** → Web application.
+3. Tambahkan Authorized JavaScript origin: `https://kapanthron.github.io`
+   (dan `http://localhost:8000` untuk pengembangan).
+4. Buka aplikasi → tombol **Masuk** → tempel Client ID.
+
+Catatan jujur: Budiasta tidak punya server, jadi peran admin ditegakkan di antarmuka dan
+log aktivitas tersimpan di peramban masing-masing pemakai (dapat diunduh sebagai JSON).
+Untuk penegakan sungguhan lintas perangkat dibutuhkan backend.
 
 ## Menjalankan lokal
 ```bash

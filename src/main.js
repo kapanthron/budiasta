@@ -8,6 +8,7 @@ import { initPalette } from './palette.js';
 import { initExportDoc } from './export-doc.js';
 import { initAbout } from './about.js';
 import { assistantDefaults } from './assistant.js';
+import { initAuth } from './auth.js';
 
 const app = {
   state: null,
@@ -28,7 +29,7 @@ const app = {
     this.save();
     closeDrawers();
   },
-  exportProject() { flush(this.state).then(() => exportJson(this.state)); },
+  exportProject() { flush(this.state).then(() => { exportJson(this.state); this.logActivity?.('ekspor-json'); }); },
 };
 
 // mobile slide-over drawers
@@ -52,6 +53,7 @@ async function boot() {
   app.currentDocId = app.state.settings.lastDocId && app.state.documents[app.state.settings.lastDocId]
     ? app.state.settings.lastDocId : Object.keys(app.state.documents)[0] || null;
   assistantDefaults(app.state);
+  await initAuth(app);
 
   await initTheme(app);
   initEditor(app);
@@ -59,7 +61,7 @@ async function boot() {
   initInspector(app);
   initPalette(app);
   initExportDoc(app);
-  initAbout();
+  initAbout(app);
 
   // mobile drawers
   document.getElementById('btn-toggle-binder').addEventListener('click', () => toggleDrawer('binder'));
@@ -70,6 +72,7 @@ async function boot() {
   // manual save: button + Ctrl/Cmd+S (autosave still runs on every pause)
   const saveNow = async () => {
     await flush(app.state);
+    app.logActivity?.('simpan', `${app.state.project.title}`);
     const st = document.getElementById('st-saved');
     st.textContent = 'tersimpan'; st.classList.remove('dirty');
   };
