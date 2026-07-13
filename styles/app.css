@@ -58,6 +58,12 @@ button:hover { background: var(--surface-3); }
 }
 #st-ceiling[data-over="1"] { color: var(--danger); }
 #st-saved.dirty { color: var(--warn); }
+#credit {
+  text-align: center; font-size: 11.5px; color: var(--ink-soft);
+  padding: 4px 8px; border-top: 1px solid var(--line); background: var(--surface-2);
+  letter-spacing: 0.02em;
+}
+.tb-break { display: none; }
 
 /* Inspector */
 #inspector { border-left: 1px solid var(--line); display: flex; flex-direction: column; min-height: 0; }
@@ -156,8 +162,13 @@ dialog label { display: flex; align-items: center; gap: 8px; margin: 8px 0; }
 @media (max-width: 760px) {
   .mobile-only { display: inline-block; }
   .desktop-only { display: none !important; }
-  #toolbar { flex-wrap: wrap; gap: 6px; padding: 6px 8px; }
-  #project-title { min-width: 8ch; flex: 1; }
+  /* Row 1 = identity (menu · brand · project title), row 2 = actions */
+  #toolbar { flex-wrap: wrap; gap: 6px 8px; padding: 6px 8px; align-items: center; }
+  #brand { font-size: 15px; flex: 0 0 auto; }
+  #project-title { flex: 1 1 6ch; min-width: 0; text-overflow: ellipsis; }
+  .tb-break { display: block; flex-basis: 100%; height: 0; margin: 0; }
+  #toolbar .spacer { display: none; }
+  #btn-toggle-inspector { margin-left: auto; }
   #layout { display: block; position: relative; height: 100%; }
   #editor-col { height: 100%; }
   #page-wrap { padding: 12px 8px; }

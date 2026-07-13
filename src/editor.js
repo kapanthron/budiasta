@@ -21,8 +21,11 @@ export function initEditor(app) {
 
   function status() {
     const doc = app.state.documents[app.currentDocId];
-    const words = doc ? countWords(doc.body) : 0;
-    stWords.textContent = `${words} kata`;
+    const body = doc ? doc.body : '';
+    const words = countWords(body);
+    const chars = body.length;
+    const charsNoSpace = body.replace(/\s/g, '').length;
+    stWords.textContent = `${words} kata · ${chars} karakter · ${charsNoSpace} tanpa spasi`;
     const delta = words - (sessionBase ?? words);
     stSession.textContent = `sesi ${delta >= 0 ? '+' : ''}${delta}`;
     stRead.textContent = `${Math.max(1, Math.round(words / 200))} mnt baca`;
