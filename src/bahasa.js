@@ -1,6 +1,6 @@
 // Panel Bahasa: Periksa (PUEBI/EYD findings) and Kamus (writer-supplied KBBI).
 import { loadRules, check } from './rules-engine.js';
-import { renderAssistant } from './assistant.js';
+import { renderAssistantChat } from './assistant.js';
 
 let kbbi = null;          // array of entries, loaded from the writer's own file
 let kbbiIndex = null;     // Map lemma -> entry
@@ -69,8 +69,8 @@ export async function renderBahasaTab(app, body) {
       el('p', { className: 'insp-note' }, `${kbbi.length} lema dimuat (sesi ini saja).`), kamusOut);
   }
 
-  // --- Asisten (LLM, off by default) ---
-  renderAssistant(app, body);
+  // --- Asisten: kotak chat siap pakai (setelan ada di halaman admin) ---
+  await renderAssistantChat(app, body);
 }
 
 function renderFindings(app, out, doc) {
