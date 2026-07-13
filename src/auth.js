@@ -3,6 +3,7 @@
 // the admin role is enforced by the UI, and the activity log lives in this browser.
 import { kvGet, kvSet } from './store.js';
 import { logActivity, getActivity, clearActivity, exportActivity } from './activity.js';
+import { renderAssistantConfig } from './assistant.js';
 
 const GSI_SRC = 'https://accounts.google.com/gsi/client';
 
@@ -160,6 +161,7 @@ export async function initAuth(app) {
         el('p', { className: 'insp-note' },
           'Catatan jujur: tanpa server, peran admin dan log ini hidup di peramban masing-masing pemakai — ini jejak kerja, bukan pagar keamanan.'),
       );
+      renderAssistantConfig(app, acctBody);
     }
 
     appendServer(acctBody);
