@@ -105,6 +105,21 @@ const FIXERS = {
   W06: (m) => m[1],
   // "abad ke 20" -> "ke-20"
   A04: (m) => m[0].replace(/\s+/, '-'),
+  // ellipsis: excess dots -> "...", or a word glued to "..." gets a space: "mungkin..." -> "mungkin ..."
+  P07: (m) => {
+    const t = m[0];
+    if (/^\.{5,}$/.test(t)) return '...';
+    if (/^\w\.{3}$/.test(t)) return t[0] + ' ...';
+    return null;
+  },
+  // straight quote -> typographic; opening vs closing decided by the preceding character
+  P10: (m) => {
+    const ch = m[0];
+    const prev = (m.index > 0 ? m.input[m.index - 1] : ' ');
+    const opening = m.index === 0 || /[\s(\[{«—–-]/.test(prev);
+    if (ch === '"') return opening ? '“' : '”';
+    return opening ? '‘' : '’';
+  },
 };
 
 // A suggest like "pisahkan: $1 $2" or "serangkaikan: di$1" carries its template

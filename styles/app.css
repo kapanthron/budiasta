@@ -54,10 +54,11 @@ button:hover { background: var(--surface-3); }
 
 #search-bar {
   display: flex; align-items: center; gap: 6px; padding: 6px 10px;
-  border-bottom: 1px solid var(--line); background: var(--surface-2);
+  border-bottom: 1px solid var(--line); background: var(--surface-2); flex-wrap: wrap;
 }
-#search-input { flex: 1; padding: 5px 8px; }
-#search-count { font-size: 12.5px; color: var(--ink-soft); white-space: nowrap; }
+#search-input { flex: 1 1 140px; min-width: 0; padding: 5px 8px; }
+#search-count { font-size: 12.5px; color: var(--ink-soft); white-space: nowrap; min-width: 3ch; text-align: center; }
+#search-bar button { padding: 5px 10px; }
 #search-results {
   max-height: 30vh; overflow-y: auto; border-bottom: 1px solid var(--line);
   background: var(--surface); padding: 4px;
@@ -174,6 +175,18 @@ dialog label.row-check { flex-direction: row; align-items: center; }
 .chat-msg.ai { align-self: flex-start; background: var(--surface-2); border: 1px solid var(--line); }
 .chat-input-row { display: flex; gap: 6px; }
 .chat-input-row textarea { flex: 1; min-height: 44px; max-height: 160px; resize: vertical; padding: 6px 8px; }
+.chat-msg strong { font-weight: 700; }
+.chat-msg em { font-style: italic; }
+.chat-msg del { text-decoration: line-through; opacity: 0.8; }
+.chat-msg code { font-family: var(--font-ui); background: var(--surface-3); border-radius: 4px; padding: 0 4px; }
+.typing { display: inline-flex; gap: 4px; align-items: center; padding: 2px 0; }
+.typing span { width: 7px; height: 7px; border-radius: 50%; background: var(--ink-soft); display: inline-block; }
+@media (prefers-reduced-motion: no-preference) {
+  .typing span { animation: budi-blink 1.2s infinite ease-in-out; }
+  .typing span:nth-child(2) { animation-delay: 0.2s; }
+  .typing span:nth-child(3) { animation-delay: 0.4s; }
+}
+@keyframes budi-blink { 0%, 80%, 100% { opacity: 0.25; transform: translateY(0); } 40% { opacity: 1; transform: translateY(-2px); } }
 
 /* Account & activity */
 #account-dialog { max-width: 560px; width: min(92vw, 560px); }
@@ -235,6 +248,9 @@ dialog label.row-check { flex-direction: row; align-items: center; }
     position: fixed; inset: 0; z-index: 20; background: rgba(0,0,0,0.35);
   }
   #insp-tabs { flex-wrap: wrap; }
+  /* search bar: full-width input on its own line, controls below */
+  #search-input { flex: 1 1 100%; order: -1; }
+  #format-bar { justify-content: flex-start; }
   /* touch targets */
   button { padding: 6px 12px; }
   .node-row { padding: 8px 6px; }

@@ -138,7 +138,19 @@ export async function renderAssistantChat(app, container) {
   const msgs = el('div', { className: 'chat-msgs' });
   function renderMsgs() {
     msgs.textContent = '';
-    for (const m of chat) msgs.append(el('div', { className: 'chat-msg ' + (m.role === 'user' ? 'user' : 'ai') }, m.content));
+    for (const m of chat) {
+      const bubble = el('div', { className: 'chat-msg ' + (m.role === 'user' ? 'user' : 'ai') });
+      if (m.role === 'user') {
+        bubble.textContent = m.displayText ?? m.content;
+      } else if (m.pending && !m.content) {
+        // animated typing indicator while waiting for the first token
+        const dots = el('span', { className: 'typing' }, el('span', {}), el('span', {}), el('span', {}));
+        bubble.append(dots);
+      } else {
+        bubble.innerHTML = mdToHtml(m.content);
+      }
+      msgs.append(bubble);
+    }
     msgs.scrollTop = msgs.scrollHeight;
   }
   renderMsgs();
@@ -156,19 +168,21 @@ export async function renderAssistantChat(app, container) {
       const sel = app.getSelection?.() || '';
       if (sel.trim()) content = `Teks terpilih:\n"""${sel.slice(0, 4000)}"""\n\nPermintaan: ${text}`;
     }
-    chat.push({ role: 'user', content });
-    chat.push({ role: 'assistant', content: '…' });
+    chat.push({ role: 'user', content, displayText: text });
+    const aiMsg = { role: 'assistant', content: '', pending: true };
+    chat.push(aiMsg);
     renderMsgs();
     app.logActivity?.('ai-chat', cfg.provider);
     const payload = [
       { role: 'system', content: 'Kamu asisten menulis berbahasa Indonesia untuk aplikasi Budiasta. Bantu penulis menyunting, meringkas, memberi saran, atau menjawab pertanyaan. Jawab ringkas dan jelas dalam bahasa Indonesia. Jangan menilai gaya penulis.' },
-      ...chat.slice(0, -1),
+      ...chat.slice(0, -1).map(({ role, content }) => ({ role, content })),
     ];
     const key = await resolveKey();
+    const onDelta = (full) => { aiMsg.content = full; aiMsg.pending = false; renderMsgs(); };
     try {
       let reply;
       try {
-        reply = await callModel(cfg, key, payload);
+        reply = await streamModel(cfg, key, payload, onDelta);
       } catch (err) {
         // Model retired/unknown? Fetch the live list, switch to a valid one, retry once.
         if (err.status === 404) {
@@ -176,16 +190,15 @@ export async function renderAssistantChat(app, container) {
           const better = pickModel(ids, cfg.model);
           if (better && better !== cfg.model) {
             cfg.model = better; app.save();
-            chat[chat.length - 1].content = `(mengganti model ke ${better}…)`;
-            renderMsgs();
-            reply = await callModel(cfg, key, payload);
+            reply = await streamModel(cfg, key, payload, onDelta);
           } else throw err;
         } else throw err;
       }
-      chat[chat.length - 1].content = reply || '(kosong)';
+      aiMsg.content = reply || '(kosong)';
     } catch (err) {
-      chat[chat.length - 1].content = 'Gagal: ' + err.message;
+      aiMsg.content = 'Gagal: ' + err.message;
     }
+    aiMsg.pending = false;
     renderMsgs();
   }
 
@@ -217,6 +230,56 @@ async function callModel(cfg, key, messages) {
   if (!res.ok) { const e = new Error(await errText(res, cfg.model)); e.status = res.status; throw e; }
   const data = await res.json();
   return data.choices?.[0]?.message?.content || '';
+}
+
+// Streamed completion (SSE): calls onDelta(fullTextSoFar) as tokens arrive, so
+// the reply appears progressively. Falls back to a single call if the body
+// can't be streamed. Returns the full text.
+async function streamModel(cfg, key, messages, onDelta) {
+  let res;
+  try {
+    res = await fetch(cfg.baseUrl.replace(/\/$/, '') + '/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
+      body: JSON.stringify({ model: cfg.model, temperature: 0.3, stream: true, messages }),
+    });
+  } catch (e) { return callModel(cfg, key, messages); }
+  if (!res.ok) { const e = new Error(await errText(res, cfg.model)); e.status = res.status; throw e; }
+  if (!res.body || !res.body.getReader) return callModel(cfg, key, messages);
+
+  const reader = res.body.getReader();
+  const dec = new TextDecoder();
+  let buf = '', full = '';
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buf += dec.decode(value, { stream: true });
+    const lines = buf.split('\n');
+    buf = lines.pop();
+    for (const line of lines) {
+      const t = line.trim();
+      if (!t.startsWith('data:')) continue;
+      const data = t.slice(5).trim();
+      if (data === '[DONE]') continue;
+      try {
+        const j = JSON.parse(data);
+        const d = j.choices?.[0]?.delta?.content || '';
+        if (d) { full += d; onDelta(full); }
+      } catch { /* keep partial line for next chunk */ }
+    }
+  }
+  return full;
+}
+
+// Render the small Markdown subset the app uses into safe HTML for chat bubbles.
+function mdToHtml(s) {
+  const esc = (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  return esc
+    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+    .replace(/(^|[^*])\*([^*]+)\*/g, '$1<em>$2</em>')
+    .replace(/~~([^~]+)~~/g, '<del>$1</del>')
+    .replace(/`([^`]+)`/g, '<code>$1</code>')
+    .replace(/\n/g, '<br>');
 }
 
 // Prefer a general flash chat model; avoid non-chat variants (embedding, tts,
