@@ -64,6 +64,7 @@ export function initBinder(app) {
       if (commit && input.value.trim() && input.value.trim() !== node.title) {
         app.logActivity?.('ganti-nama', `${node.title} -> ${input.value.trim()}`);
         node.title = input.value.trim();
+        if (node.id === app.currentDocId) app.renderEditor?.();
       }
       app.save(); render();
     };
