@@ -1,10 +1,11 @@
 // Editor: textarea page, autosave, word counts, cuts shortcut, status bar.
-import { uid } from './store.js';
+import { uid, findNode } from './store.js';
 
 export const countWords = (t) => (t.match(/[\wÀ-ÿ'-]+/g) || []).length;
 
 export function initEditor(app) {
   const page = document.getElementById('page');
+  const pageTitle = document.getElementById('page-title');
   const stWords = document.getElementById('st-words');
   const stSession = document.getElementById('st-session');
   const stCeiling = document.getElementById('st-ceiling');
@@ -15,10 +16,25 @@ export function initEditor(app) {
     const doc = app.state.documents[app.currentDocId];
     page.value = doc ? doc.body : '';
     page.disabled = !doc;
+    const node = app.currentDocId ? findNode(app.state.tree, app.currentDocId)?.node : null;
+    pageTitle.value = node ? node.title : '';
+    pageTitle.disabled = !doc;
     sessionBase = doc ? countWords(doc.body) : 0;
     app.syncFormatBar?.();
     status();
   }
+
+  // editable document title above the page — kept in sync with the binder
+  pageTitle.addEventListener('input', () => {
+    const hit = findNode(app.state.tree, app.currentDocId);
+    if (!hit) return;
+    hit.node.title = pageTitle.value;
+    app.renderBinder?.();
+    app.save();
+  });
+  pageTitle.addEventListener('change', () => {
+    if (pageTitle.value.trim()) app.logActivity?.('ganti-judul', pageTitle.value.trim());
+  });
 
   function status() {
     const doc = app.state.documents[app.currentDocId];
