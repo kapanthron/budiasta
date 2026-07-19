@@ -48,8 +48,11 @@ button:hover { background: var(--surface-3); }
   display: flex; align-items: center; gap: 3px; padding: 5px 10px;
   border-bottom: 1px solid var(--line); background: var(--surface-2); flex-wrap: wrap;
 }
-#format-bar button { padding: 3px 9px; min-width: 30px; }
-#format-bar .fb-sep { width: 1px; height: 18px; background: var(--line); margin: 0 5px; }
+#format-bar button { padding: 4px 9px; min-width: 32px; display: inline-flex; align-items: center; justify-content: center; }
+#format-bar .fb-sep { width: 1px; height: 18px; background: var(--line); margin: 0 5px; flex: 0 0 auto; }
+button svg { display: block; }
+#fmt-cuts { gap: 5px; }
+#fmt-cuts .btn-label { font-size: 13px; }
 .fmt-align.on { background: var(--sel); }
 
 #search-bar {
@@ -241,7 +244,6 @@ dialog label.row-check { flex-direction: row; align-items: center; }
   #project-title { flex: 1 1 6ch; min-width: 0; text-overflow: ellipsis; }
   .tb-break { display: block; flex-basis: 100%; height: 0; margin: 0; }
   #toolbar .spacer { display: none; }
-  #btn-toggle-inspector { margin-left: auto; }
   #layout { display: block; position: relative; height: 100%; }
   #editor-col { height: 100%; }
   #page-wrap { padding: 12px 8px; }
@@ -262,7 +264,13 @@ dialog label.row-check { flex-direction: row; align-items: center; }
   #insp-tabs { flex-wrap: wrap; }
   /* search bar: full-width input on its own line, controls below */
   #search-input { flex: 1 1 100%; order: -1; }
-  #format-bar { justify-content: flex-start; }
+  /* format bar = one tidy swipeable row (no lonely wrapped button) */
+  #format-bar { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; gap: 4px; }
+  #format-bar::-webkit-scrollbar { height: 0; }
+  #format-bar button { flex: 0 0 auto; }
+  /* toolbar action buttons: uniform-height chips, evenly packed */
+  #toolbar button { min-height: 40px; }
+  #btn-toggle-inspector { margin-left: 0; }
   /* touch targets */
   button { padding: 6px 12px; }
   .node-row { padding: 8px 6px; }
