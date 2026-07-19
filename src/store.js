@@ -64,24 +64,34 @@ async function idbSet(key, val) {
 }
 
 // generic key-value slots in the same store (custom fonts, about page, admin key)
+// These are device/site-level and stay shared across users on this browser.
 export const kvGet = (key) => idbGet('kv:' + key).catch(() => undefined);
 export const kvSet = (key, val) => idbSet('kv:' + key, val).catch(() => {});
 
+// --- per-user workspace scoping ---
+// The project is stored under a key that depends on who is signed in, so each
+// Google account gets its own manuscript. Guests use the legacy 'current' key.
+let ACTIVE_KEY = DB_KEY;
+export const projectKeyForUser = (sub) => (sub ? 'project:' + sub : DB_KEY);
+export function setProjectKey(key) { ACTIVE_KEY = key || DB_KEY; }
+export const getProjectAt = (key) => idbGet(key).catch(() => null);
+export const putProjectAt = (key, val) => idbSet(key, val).catch(() => {});
+
 export async function loadProject() {
   try {
-    const data = await idbGet(DB_KEY);
+    const data = await idbGet(ACTIVE_KEY);
     if (data) return migrate(data);
   } catch { /* fall through to localStorage */ }
   try {
-    const raw = localStorage.getItem(DB_NAME);
+    const raw = localStorage.getItem(DB_NAME + ':' + ACTIVE_KEY);
     if (raw) return migrate(JSON.parse(raw));
   } catch { /* corrupt or unavailable */ }
   return blankProject();
 }
 
 export async function saveProject(state) {
-  try { await idbSet(DB_KEY, state); }
-  catch { try { localStorage.setItem(DB_NAME, JSON.stringify(state)); } catch { /* quota */ } }
+  try { await idbSet(ACTIVE_KEY, state); }
+  catch { try { localStorage.setItem(DB_NAME + ':' + ACTIVE_KEY, JSON.stringify(state)); } catch { /* quota */ } }
 }
 
 // Debounced autosave with a dirty flag callback for the status bar.

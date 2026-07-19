@@ -1,7 +1,7 @@
 // Google sign-in (Google Identity Services) + admin role + account panel.
 // Static app, no server: the ID token is decoded client-side for identification,
 // the admin role is enforced by the UI, and the activity log lives in this browser.
-import { kvGet, kvSet } from './store.js';
+import { kvGet, kvSet, projectKeyForUser, getProjectAt, putProjectAt } from './store.js';
 import { logActivity, getActivity, clearActivity, exportActivity } from './activity.js';
 import { renderAssistantConfig } from './assistant.js';
 
@@ -39,19 +39,32 @@ export async function initAuth(app) {
   async function onCredential(response) {
     let claims;
     try { claims = decodeJwt(response.credential); } catch { return; }
+    const wasFirstEver = !admins.length;
     app.session = {
       sub: claims.sub, email: claims.email, name: claims.name || '',
       picture: claims.picture || '', loginAt: new Date().toISOString(),
     };
     await kvSet('session', app.session);
-    if (!admins.length) {           // first account to sign in on this browser becomes admin
+    if (wasFirstEver) {             // first account to sign in on this browser becomes admin
       admins = [app.session.email];
       await kvSet('admins', admins);
     }
     await logActivity(app, 'masuk', `Google ID ${claims.sub}`);
-    refreshChip();
-    loginDlg.close();
-    renderAccount();
+
+    // Prepare this account's own workspace, then reload into it.
+    const destKey = projectKeyForUser(claims.sub);
+    const existing = await getProjectAt(destKey);
+    if (!existing) {
+      // 1) pull the account's manuscript from the server if one exists (follows across devices)
+      let seeded = app.pullUserWorkspace ? await app.pullUserWorkspace(destKey) : false;
+      // 2) otherwise the very first (owner) login inherits whatever was open as guest
+      if (!seeded && wasFirstEver) {
+        const cur = await getProjectAt('current');
+        if (cur) await putProjectAt(destKey, cur);
+      }
+      // 3) else a brand-new account starts with a blank project (created on first load)
+    }
+    location.reload();
   }
 
   async function renderLogin() {
@@ -83,6 +96,7 @@ export async function initAuth(app) {
       el('p', {}, 'Masuk untuk mencatat aktivitas atas nama akun Anda.'),
       holder,
       el('p', { className: 'insp-note' },
+        'Siapa pun yang punya akun Google bisa masuk ke akunnya sendiri — setiap akun punya naskah sendiri, terpisah dari akun lain. ' +
         'Tanpa masuk pun Budiasta tetap berfungsi penuh sebagai tamu. Akun pertama yang masuk di peramban ini menjadi admin.'),
     );
     appendServer(loginBody);
@@ -171,8 +185,8 @@ export async function initAuth(app) {
       await logActivity(app, 'keluar');
       app.session = null;
       await kvSet('session', null);
-      refreshChip();
       acctDlg.close();
+      location.reload();   // switch back to the guest workspace
     });
     acctBody.append(el('div', { className: 'dialog-actions' }, logout));
   }

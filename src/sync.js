@@ -1,7 +1,7 @@
 // Server sync: save works to the owner's free Apps Script backend, mirror the
 // activity log there, and give the server-admin (id + password, checked
 // server-side) a live view of users and activities.
-import { kvGet, kvSet, uid, flush } from './store.js';
+import { kvGet, kvSet, uid, flush, putProjectAt } from './store.js';
 import { setRemoteLogger } from './activity.js';
 
 let serverUrl = '';
@@ -57,6 +57,16 @@ export async function initSync(app) {
 
   app.syncNow = () => syncNow(app);
   app.renderServerSection = (container) => renderServerSection(app, container);
+
+  // On login, fetch this account's manuscript from the server into its local key.
+  app.pullUserWorkspace = async (destKey) => {
+    if (!serverUrl) return false;
+    try {
+      const r = await call('load', { user: ident(app) });
+      if (r.ok && r.project) { await putProjectAt(destKey, r.project); return true; }
+    } catch { /* offline or not found */ }
+    return false;
+  };
 
   // mirror activity entries to the server, fire-and-forget
   setRemoteLogger((entry) => {
