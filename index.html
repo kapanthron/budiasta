@@ -26,8 +26,8 @@
   <button id="btn-dark" title="Ganti terang/gelap">◐</button>
   <select id="theme-select" aria-label="Tema" class="desktop-only"></select>
   <button id="btn-typography" title="Tipografi & font">Aa</button>
-  <button id="btn-search" title="Cari (Ctrl+F)">🔍</button>
-  <button id="btn-focus" title="Mode fokus (Esc keluar)">◲</button>
+  <button id="btn-search" title="Cari (Ctrl+F)" aria-label="Cari"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="7" cy="7" r="4.3"/><path d="M10.3 10.3 14 14"/></svg></button>
+  <button id="btn-focus" title="Mode fokus (Esc keluar)" aria-label="Mode fokus"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M2 5.5V2.5h3M14 5.5V2.5h-3M2 10.5v3h3M14 10.5v3h-3"/></svg></button>
   <button id="btn-download" title="Unduh / bagikan">Unduh</button>
   <button id="btn-user" title="Akun">Masuk</button>
   <button id="btn-about" title="Tentang Budiasta">?</button>
@@ -52,6 +52,8 @@
 
   <section id="editor-col">
     <div id="format-bar">
+      <button id="fmt-cuts" title="Pindahkan teks yang disorot ke Cuts" aria-label="Cuts"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="4" cy="4" r="2"/><circle cx="4" cy="12" r="2"/><path d="M6 5.2 14 12M6 10.8 14 4" stroke-linecap="round"/></svg><span class="btn-label">Cuts</span></button>
+      <span class="fb-sep"></span>
       <button id="fmt-undo" title="Urungkan (Ctrl+Z)">↶</button>
       <button id="fmt-redo" title="Ulangi (Ctrl+Shift+Z)">↷</button>
       <span class="fb-sep"></span>
@@ -59,12 +61,10 @@
       <button id="fmt-italic" title="Miring (Ctrl+I)"><i>I</i></button>
       <button id="fmt-strike" title="Coret"><s>S</s></button>
       <span class="fb-sep"></span>
-      <button class="fmt-align" data-align="left" title="Rata kiri">⯇</button>
-      <button class="fmt-align" data-align="center" title="Rata tengah">≡</button>
-      <button class="fmt-align" data-align="right" title="Rata kanan">⯈</button>
-      <button class="fmt-align" data-align="justify" title="Rata kiri-kanan">▤</button>
-      <span class="fb-sep"></span>
-      <button id="fmt-cuts" title="Pindahkan teks yang disorot ke Cuts">✂ Cuts</button>
+      <button class="fmt-align" data-align="left" title="Rata kiri" aria-label="Rata kiri"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M2 4h12M2 8h8M2 12h10"/></svg></button>
+      <button class="fmt-align" data-align="center" title="Rata tengah" aria-label="Rata tengah"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M2 4h12M4 8h8M3 12h10"/></svg></button>
+      <button class="fmt-align" data-align="right" title="Rata kanan" aria-label="Rata kanan"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M2 4h12M6 8h8M4 12h10"/></svg></button>
+      <button class="fmt-align" data-align="justify" title="Rata kiri-kanan" aria-label="Rata kiri-kanan"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M2 4h12M2 8h12M2 12h12"/></svg></button>
     </div>
     <div id="search-bar" hidden>
       <input id="search-input" placeholder="Cari di dokumen…" aria-label="Cari">

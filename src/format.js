@@ -68,9 +68,10 @@ export function initFormat(app) {
     else flash(cutsBtn, 'Sorot dulu');
   });
   function flash(btn, msg) {
-    const orig = btn.textContent;
-    btn.textContent = msg;
-    setTimeout(() => { btn.textContent = orig; }, 1200);
+    const label = btn.querySelector('.btn-label') || btn;
+    const orig = label.textContent;
+    label.textContent = msg;
+    setTimeout(() => { label.textContent = orig; }, 1200);
   }
 
   document.getElementById('fmt-undo').addEventListener('click', () => undo(false));
