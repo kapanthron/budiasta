@@ -74,14 +74,16 @@ export function initEditor(app) {
   app.cutSelection = () => {
     const doc = app.state.documents[app.currentDocId];
     const { selectionStart: a, selectionEnd: b } = page;
-    if (!doc || a === b) return;
+    if (!doc || a === b) return false;
     const text = page.value.slice(a, b);
     app.state.cuts.unshift({ id: uid(), fromDocumentId: app.currentDocId, text, cutAt: new Date().toISOString() });
     page.setRangeText('', a, b, 'start');
     doc.body = page.value;
     status();
     app.save();
+    app.logActivity?.('cuts', text.slice(0, 40));
     app.renderInspector?.();
+    return true;
   };
 
   app.applyEdit = (start, end, replacement) => {

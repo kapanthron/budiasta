@@ -15,6 +15,17 @@ export function initInspector(app) {
     render();
   });
 
+  // Programmatically open a tab (e.g. the Cuts button jumps to the Cuts tab).
+  app.showInspectorTab = (tab) => {
+    active = tab;
+    tabs.querySelectorAll('button[data-tab]').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+    render();
+    if (window.matchMedia('(max-width: 760px)').matches) {
+      document.getElementById('inspector').classList.add('open');
+      document.getElementById('drawer-scrim').hidden = false;
+    }
+  };
+
   const el = (tag, props = {}, ...kids) => {
     const n = document.createElement(tag);
     Object.assign(n, props);

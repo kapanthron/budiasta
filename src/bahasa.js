@@ -1,6 +1,24 @@
 // Panel Bahasa: Periksa (PUEBI/EYD findings) and Kamus (writer-supplied KBBI).
 import { loadRules, check } from './rules-engine.js';
 import { renderAssistantChat } from './assistant.js';
+import { kvGet, kvSet } from './store.js';
+
+// Accept several JSON shapes, not only the PDF-tool output: an array of
+// {lemma,...}, an {entries:[...]} wrapper, or an object map {lemma: entry}.
+function normalizeKbbi(data) {
+  let arr = null;
+  if (Array.isArray(data)) arr = data;
+  else if (data && typeof data === 'object') {
+    if (Array.isArray(data.entries)) arr = data.entries;
+    else arr = Object.entries(data).map(([k, v]) =>
+      (v && typeof v === 'object') ? { lemma: v.lemma || k, ...v }
+        : { lemma: k, senses: [{ n: 1, definition: String(v) }] });
+  }
+  if (!Array.isArray(arr)) return null;
+  arr = arr.filter(e => e && e.lemma);
+  return arr.length ? arr : null;
+}
+const buildKbbiIndex = (arr) => new Map(arr.map(en => [String(en.lemma).toLowerCase(), en]));
 
 let kbbi = null;          // array of entries, loaded from the writer's own file
 let kbbiIndex = null;     // Map lemma -> entry
@@ -15,6 +33,10 @@ const el = (tag, props = {}, ...kids) => {
 
 export async function renderBahasaTab(app, body) {
   await loadRules();
+  if (!kbbi) {
+    const stored = await kvGet('kbbi');
+    if (Array.isArray(stored) && stored.length) { kbbi = stored; kbbiIndex = buildKbbiIndex(stored); }
+  }
   body.textContent = '';
 
   // --- Periksa ---
@@ -43,20 +65,26 @@ export async function renderBahasaTab(app, body) {
   if (!kbbi) {
     body.append(
       el('p', { className: 'insp-note' },
-        'KBBI belum dimuat. Kamus adalah pustaka pribadi: hasilkan kbbi.json dari salinan PDF Anda sendiri dengan tools/kbbi_pdf_to_json.py, lalu muat di sini. Berkas tidak pernah dikirim ke mana pun.'),
+        'Sudah punya berkas kbbi.json? Klik tombol di bawah dan pilih berkasnya — TIDAK wajib dari PDF. ' +
+        'Skrip tools/kbbi_pdf_to_json.py hanyalah salah satu cara membuatnya. ' +
+        'Format yang diterima: array objek berisi field "lemma" (dan "senses"), atau peta {lema: definisi}. ' +
+        'Berkas tetap di peramban ini, tidak pernah dikirim ke mana pun.'),
     );
     const load = el('button', { textContent: 'Muat kbbi.json…' });
     load.addEventListener('click', () => document.getElementById('file-kbbi').click());
     document.getElementById('file-kbbi').onchange = async (e) => {
       const file = e.target.files[0];
       if (!file) return;
-      try {
-        const data = JSON.parse(await file.text());
-        if (!Array.isArray(data) || !data[0]?.lemma) throw new Error('format');
-        kbbi = data;
-        kbbiIndex = new Map(data.map(en => [en.lemma.toLowerCase(), en]));
-        app.renderInspector();
-      } catch { alert('Berkas ini bukan keluaran kbbi_pdf_to_json.py.'); }
+      let data;
+      try { data = JSON.parse(await file.text()); }
+      catch { alert('Berkas ini bukan JSON yang sah.'); return; }
+      const arr = normalizeKbbi(data);
+      if (!arr) { alert('JSON dimuat, tetapi tidak ditemukan entri berisi "lemma". Pastikan bentuknya array objek {lemma, senses} atau peta {lema: definisi}.'); return; }
+      kbbi = arr;
+      kbbiIndex = buildKbbiIndex(arr);
+      await kvSet('kbbi', arr);   // simpan agar tak perlu muat ulang tiap buka
+      app.logActivity?.('muat-kbbi', arr.length + ' lema');
+      app.renderInspector();
     };
     body.append(load);
   } else {
@@ -65,8 +93,15 @@ export async function renderBahasaTab(app, body) {
     const doLookup = (term) => renderEntry(app, kamusOut, term.trim().toLowerCase());
     lookupBtn.addEventListener('click', () => doLookup(app.getSelection() || q.value));
     q.addEventListener('keydown', (e) => { if (e.key === 'Enter') doLookup(q.value); });
+    const forget = el('button', { textContent: 'Hapus kamus' });
+    forget.addEventListener('click', async () => {
+      if (!confirm('Hapus kamus KBBI dari peramban ini?')) return;
+      kbbi = null; kbbiIndex = null; await kvSet('kbbi', null);
+      app.renderInspector();
+    });
     body.append(el('div', { className: 'insp-row' }, q, lookupBtn),
-      el('p', { className: 'insp-note' }, `${kbbi.length} lema dimuat (sesi ini saja).`), kamusOut);
+      el('p', { className: 'insp-note' }, `${kbbi.length} lema tersimpan di peramban ini.`),
+      kamusOut, el('div', { className: 'insp-row' }, forget));
   }
 
   // --- Asisten: kotak chat siap pakai (setelan ada di halaman admin) ---
