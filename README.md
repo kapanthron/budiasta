@@ -27,10 +27,13 @@ Dibuat dan dikembangkan oleh **Panthron Mahagama**.
 - **Tema** — 4 tema berbasis token + sakelar terang/gelap satu ketukan.
 - **Snapshot & Laci Cuts** — tidak ada kata yang hilang; Ctrl+Shift+X memarkir seleksi.
 - **Tentang** — halaman Tentang dapat disunting pemilik lewat kunci admin lokal.
-- **Masuk dengan Google** — opsional. Akun pertama yang masuk di sebuah peramban menjadi
-  admin: akses penuh (sunting Tentang tanpa kunci, kelola daftar admin, lihat/unduh log
-  aktivitas). Setiap tindakan penting (masuk, simpan, buat/hapus/ganti nama dokumen, unduh,
-  bagikan, panggilan AI) dicatat dengan ID akun Google dan waktunya.
+- **Masuk dengan Google** — opsional. Siapa pun yang punya akun Google bisa masuk ke akunnya
+  masing-masing, dan **setiap akun punya naskahnya sendiri** yang terpisah (disimpan per akun
+  di peramban, dan ikut ke perangkat lain lewat server jika server aktif). Akun pertama yang
+  masuk di sebuah peramban menjadi admin: akses penuh (sunting Tentang tanpa kunci, kelola
+  daftar admin, lihat/unduh log aktivitas). Setiap tindakan penting (masuk, simpan,
+  buat/hapus/ganti nama dokumen, unduh, bagikan, panggilan AI) dicatat dengan ID akun Google
+  dan waktunya.
 
 ### Penyiapan login Google (sekali, oleh pemilik)
 1. Buka [console.cloud.google.com](https://console.cloud.google.com) → APIs & Services → Credentials.

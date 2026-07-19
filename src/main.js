@@ -1,5 +1,5 @@
 // Manuskrip bootstrap: load state, wire modules, own the save path.
-import { loadProject, autosave, flush, exportJson, importJson } from './store.js';
+import { loadProject, autosave, flush, exportJson, importJson, kvGet, setProjectKey, projectKeyForUser } from './store.js';
 import { initBinder } from './binder.js';
 import { initEditor } from './editor.js';
 import { initInspector } from './inspector.js';
@@ -53,6 +53,10 @@ function toggleDrawer(id) {
 }
 
 async function boot() {
+  // scope the workspace to whoever is signed in on this device before loading
+  const session = await kvGet('session');
+  setProjectKey(projectKeyForUser(session?.sub));
+
   app.state = await loadProject();
   app.currentDocId = app.state.settings.lastDocId && app.state.documents[app.state.settings.lastDocId]
     ? app.state.settings.lastDocId : Object.keys(app.state.documents)[0] || null;
