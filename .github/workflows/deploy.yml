@@ -1,8 +1,10 @@
 name: Deploy to GitHub Pages
 
+# Deployment moved to Cloudflare (Pages/Workers), which builds from this repo
+# automatically. GitHub Pages is retired, so this no longer runs on push — it
+# only runs if triggered manually. To bring GitHub Pages back: enable it in
+# Settings -> Pages -> Source: "GitHub Actions", then re-add the push trigger.
 on:
-  push:
-    branches: [main, claude/github-app-deployment-7mhba1]
   workflow_dispatch:
 
 permissions:

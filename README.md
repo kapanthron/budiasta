@@ -6,7 +6,8 @@ Studio menulis lokal-pertama di peramban — untuk novelis, penyair, kolumnis, d
 Vanilla JS, tanpa build step, tanpa server, tanpa telemetri. Naskah Anda tinggal di perangkat Anda
 (IndexedDB) dan dapat diunduh kapan saja.
 
-**Live:** https://kapanthron.github.io/budiasta/
+**Deploy:** di-hosting lewat Cloudflare (Pages/Workers) yang membangun otomatis dari repo ini
+setiap ada perubahan di `main`.
 
 Dibuat dan dikembangkan oleh **Panthron Mahagama**.
 
@@ -80,7 +81,9 @@ python3 tools/kbbi_pdf_to_json.py KBBI_Lengkap.pdf --out kbbi.json
 Lalu buka tab **Bahasa → Muat kbbi.json**. Berkas tidak pernah meninggalkan mesin Anda.
 
 ## Deploy
-Push ke `main` memicu `.github/workflows/deploy.yml`, yang memverifikasi isi situs lalu
-menerbitkannya ke GitHub Pages.
+Situs statis ini di-hosting di **Cloudflare** (Pages/Workers) yang tersambung ke repo GitHub
+ini — setiap push ke `main` otomatis membangun ulang. Tidak ada build step (semua path relatif),
+jadi jalan di root domain mana pun. (Workflow GitHub Pages lama dinonaktifkan; untuk
+mengaktifkannya kembali lihat catatan di `.github/workflows/deploy.yml`.)
 
 Rencana dan keputusan desain: [`docs/PLAN.md`](docs/PLAN.md).
