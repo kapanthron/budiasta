@@ -150,7 +150,12 @@ function renderServerSection(app, container) {
         const r = await call('adminLogin', cred);
         if (!r.ok) { out.textContent = 'ID atau sandi salah.'; return; }
         await renderAdminData(cred, out);
-      } catch (e) { out.textContent = 'Gagal menghubungi server: ' + e.message; }
+      } catch (e) {
+        const hint = /failed to fetch|network|load failed/i.test(e.message)
+          ? ' — Server tak terjangkau. Biasanya deployment Apps Script belum disetel "Who has access: Anyone", atau URL /exec salah. Buka URL /exec di tab baru: harus tampil {"ok":true,...}, bukan halaman login Google.'
+          : '';
+        out.textContent = 'Gagal menghubungi server: ' + e.message + hint;
+      }
     });
     container.append(el('h3', {}, 'Admin server'),
       el('div', { className: 'insp-row' }, id, pass), loginBtn, out);

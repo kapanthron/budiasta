@@ -59,6 +59,20 @@ export function initFormat(app) {
       b.classList.toggle('on', b.dataset.align === align);
   }
 
+  // Cuts button (mobile has no Ctrl+Shift+X). Keep the textarea selection on tap.
+  const cutsBtn = document.getElementById('fmt-cuts');
+  cutsBtn.addEventListener('pointerdown', (e) => e.preventDefault());
+  cutsBtn.addEventListener('click', () => {
+    const ok = app.cutSelection?.();
+    if (ok) app.showInspectorTab?.('cuts');
+    else flash(cutsBtn, 'Sorot dulu');
+  });
+  function flash(btn, msg) {
+    const orig = btn.textContent;
+    btn.textContent = msg;
+    setTimeout(() => { btn.textContent = orig; }, 1200);
+  }
+
   document.getElementById('fmt-undo').addEventListener('click', () => undo(false));
   document.getElementById('fmt-redo').addEventListener('click', () => undo(true));
   document.getElementById('fmt-bold').addEventListener('click', () => wrap('**'));

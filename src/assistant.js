@@ -26,14 +26,29 @@ export function assistantDefaults(state) {
   return state.language.assistant;
 }
 
+// Assistant config is DEVICE-level (kv:assistant), not per-project, so once the
+// admin sets it up it applies to every account/workspace on this browser — no
+// re-setup when switching accounts. Seeded from the old per-project config.
+let CFG = null;
+async function loadCfg(app) {
+  if (CFG) return CFG;
+  CFG = await kvGet('assistant');
+  if (!CFG) {
+    CFG = (app?.state?.language?.assistant) || { enabled: false, provider: 'gemini', baseUrl: '', model: '', storeKey: false };
+    await kvSet('assistant', CFG);
+  }
+  return CFG;
+}
+const saveCfg = () => kvSet('assistant', CFG);
+
 async function resolveKey() {
   if (sessionKey) return sessionKey;
   return (await kvGet('aiKey')) || '';
 }
 
 // --- admin: the configuration form ---
-export function renderAssistantConfig(app, container) {
-  const cfg = assistantDefaults(app.state);
+export async function renderAssistantConfig(app, container) {
+  const cfg = await loadCfg(app);
   container.append(el('h3', {}, 'Asisten AI'));
 
   const enable = el('input', { type: 'checkbox', checked: cfg.enabled });
@@ -61,10 +76,10 @@ export function renderAssistantConfig(app, container) {
       const p = PROVIDERS.find(x => x.id === prov.value);
       baseUrl.value = p.base; model.value = p.model;
       cfg.baseUrl = p.base; cfg.model = p.model;
-      app.save();
+      saveCfg();
     });
-    baseUrl.addEventListener('input', () => { cfg.baseUrl = baseUrl.value.trim(); app.save(); });
-    model.addEventListener('input', () => { cfg.model = model.value.trim(); app.save(); });
+    baseUrl.addEventListener('input', () => { cfg.baseUrl = baseUrl.value.trim(); saveCfg(); });
+    model.addEventListener('input', () => { cfg.model = model.value.trim(); saveCfg(); });
     key.addEventListener('input', async () => {
       sessionKey = key.value.trim();
       if (cfg.storeKey) await kvSet('aiKey', sessionKey);
@@ -72,7 +87,7 @@ export function renderAssistantConfig(app, container) {
     storeKey.addEventListener('change', async () => {
       cfg.storeKey = storeKey.checked;
       await kvSet('aiKey', storeKey.checked ? (sessionKey || key.value.trim()) : null);
-      app.save();
+      saveCfg();
     });
 
     // Test the connection and load the model list, so the admin picks a valid id
@@ -80,7 +95,7 @@ export function renderAssistantConfig(app, container) {
     const testOut = el('div', { className: 'insp-note' });
     const modelPick = el('select', { hidden: true });
     modelPick.addEventListener('change', () => {
-      model.value = modelPick.value; cfg.model = modelPick.value; app.save();
+      model.value = modelPick.value; cfg.model = modelPick.value; saveCfg();
     });
     testBtn.addEventListener('click', async () => {
       testOut.textContent = 'Menghubungi penyedia…';
@@ -93,7 +108,7 @@ export function renderAssistantConfig(app, container) {
         for (const id of ids) modelPick.append(el('option', { value: id, textContent: id, selected: id === cfg.model }));
         modelPick.hidden = false;
         // if the current model isn't in the list, adopt the first as a safe default
-        if (!ids.includes(cfg.model)) { model.value = ids[0]; cfg.model = ids[0]; modelPick.value = ids[0]; app.save(); }
+        if (!ids.includes(cfg.model)) { model.value = ids[0]; cfg.model = ids[0]; modelPick.value = ids[0]; saveCfg(); }
         testOut.textContent = `Tersambung. ${ids.length} model tersedia — pilih di bawah.`;
       } catch (e) {
         testOut.textContent = 'Gagal: ' + e.message;
@@ -110,17 +125,19 @@ export function renderAssistantConfig(app, container) {
       modelPick,
       el('p', { className: 'insp-note' },
         'Jika chat memberi error 404, biasanya nama model salah. Klik “Uji & muat daftar model”, lalu pilih salah satu (mis. gemini-2.0-flash atau gemini-2.5-flash).'),
-      el('p', { className: 'insp-note' }, 'Setelah aktif, penulis melihat kotak chat siap pakai di tab Bahasa.'),
+      el('p', { className: 'insp-note' },
+        'Setelan ini tersimpan untuk peramban ini dan berlaku untuk SEMUA akun di sini — tak perlu disetel ulang saat ganti akun. ' +
+        'Setelah aktif, penulis melihat kotak chat siap pakai di tab Bahasa.'),
     );
   }
 
-  enable.addEventListener('change', () => { cfg.enabled = enable.checked; app.save(); renderDetail(); });
+  enable.addEventListener('change', () => { cfg.enabled = enable.checked; saveCfg(); renderDetail(); });
   renderDetail();
 }
 
 // --- writer: the ready-to-use chat box ---
 export async function renderAssistantChat(app, container) {
-  const cfg = assistantDefaults(app.state);
+  const cfg = await loadCfg(app);
   container.append(el('div', { className: 'col-head', style: 'border:none;padding:0;margin-top:8px' }, 'Asisten AI'));
 
   const key = await resolveKey();
@@ -189,7 +206,7 @@ export async function renderAssistantChat(app, container) {
           const ids = await listModels(cfg, key).catch(() => []);
           const better = pickModel(ids, cfg.model);
           if (better && better !== cfg.model) {
-            cfg.model = better; app.save();
+            cfg.model = better; saveCfg();
             reply = await streamModel(cfg, key, payload, onDelta);
           } else throw err;
         } else throw err;
